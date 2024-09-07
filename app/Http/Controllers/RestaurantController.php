@@ -40,6 +40,7 @@ class RestaurantController extends Controller
       // Handle file uploads
       $logoPath = $restaurant->logo;
       $bannerPath = $restaurant->banner;
+      $existBannerPath =  $request->existBannerPath;
 
       if ($request->hasFile('logo')) {
         // Delete the existing logo file if it exists
@@ -57,6 +58,10 @@ class RestaurantController extends Controller
         }
         // Store the new banner
         $bannerPath = $request->file('banner')->store('restaurant/banners', 'public');
+      }
+
+      if ($existBannerPath) {
+        $bannerPath = str_replace('/storage/', '', $existBannerPath);
       }
 
       // Update the restaurant details

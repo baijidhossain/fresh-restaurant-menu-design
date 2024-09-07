@@ -141,11 +141,15 @@
                           <div class="card-body p-2">
 
                             <form action="{{ route('account.restaurant.update',$restaurant->id) }}" method="post" enctype="multipart/form-data">
+
                              @csrf
+
                               <div class="row justify-content-center">
                                 <div class="col-6 col-md-4">
                                   <div class="mb-3">
                                   
+                                    {{-- <a href="{{ route("account.filemanager.files") }}" data-bs-toggle="modal" data-bs-target="#dynamicmodal">files</a> --}}
+
                                     <label for="banner" class="custom-form-label form-label text-nowrap"> Logo <small class="font-size-10 fw-medium"> (Ratio 1:1 || Max: 500kb) </small> </label>
 
                                     <div class="drop-area" id="drop-area-logo">
@@ -170,10 +174,12 @@
 
                                     <div class="drop-area" id="drop-area-banner">
                                       <input type="file" id="file-input-banner" name="banner" accept="image/*" hidden>
-                                      <img id="preview-banner"
+                                      <input type="text" hidden class="existBannerPath" name="existBannerPath">
+                                      <img id="preview-banner" class="preview_banner"
                                         src="{{ $restaurant->banner ? \Storage::url($restaurant->banner) : \Storage::url('default/restaurant-banner-pleaceholder.jpg') }}"
                                         alt="Banner Preview" style=" max-width: 100%;">
-                                      <i class="ri-upload-2-line upload_icon" id="icon-banner"></i>
+                                      
+                                      <a href="{{ route("account.filemanager.files") }}" data-bs-toggle="modal" data-bs-target="#dynamicmodal"><i class="ri-upload-2-line upload_icon"></i></a>
                                     </div>
 
                                     @error('banner')
@@ -213,7 +219,6 @@
                                 <label for="phone" class="form-label custom-form-label required-star"> Address <span class="required-indicator">*</span></label>
                                 <div class="form-group">
                                   <input type="text" class="form-control" id="phone" name="address" maxlength="150" value="{{ $restaurant->address ?? "" }}" required>
-                              
                                 </div>
 
                                 @error('address')
@@ -262,6 +267,7 @@
                         </div>
                       </div>
                     </div>
+
                   </div>
 
                   <div class="accordion-item  custom-accordion-item border-0">
@@ -436,7 +442,7 @@
                                     <td class="d-none d-md-table-cell">{{ $item->catalog_name }}</td>
                                     <td >{{ $item->display_order }}</td>
 
-                                    <td >
+                                    <td>
 
                                       @if ( $item->status == 1 )
 
@@ -465,7 +471,6 @@
 
                                   </tr>
 
-                                 
                                   @empty
                                       <tr><td colspan="10" class="text-center">No Data Found</td></tr>
                                   @endforelse
@@ -693,6 +698,7 @@
 
     // Image preview and drag & drop handling
     function setupDropArea(dropAreaId, fileInputId, previewId, iconId, maxSize) {
+
       var $dropArea = $('#' + dropAreaId);
       var $fileInput = $('#' + fileInputId);
       var $preview = $('#' + previewId);
@@ -720,7 +726,9 @@
             $preview.attr('src', e.target.result).show();
           };
           reader.readAsDataURL(file);
+          
         }
+
       }
 
       $dropArea.on('dragover', function(event) {

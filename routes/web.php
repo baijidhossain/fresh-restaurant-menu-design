@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\CatalogController;
 use App\Http\Controllers\Admin\CatalogItemController;
+use App\Http\Controllers\Admin\FileManagerController;
 use App\Http\Controllers\Admin\RestaurantController;
 use App\Models\Restaurant;
 
@@ -66,6 +67,11 @@ Route::prefix('/')
     Route::get('/catalog_item/edit/{id}', [App\Http\Controllers\CatalogItemController::class, 'edit'])->name('catalog.item.edit');
     Route::put('/catalog_item/update/{id}', [App\Http\Controllers\CatalogItemController::class, 'update'])->name('catalog.item.update');
     Route::delete('/catalog_item/delete/{id}', [App\Http\Controllers\CatalogItemController::class, 'delete'])->name('catalog.item.delete');
+
+    // File Manager
+    Route::get('/filemanager', [FileManagerController::class, 'index'])->name('filemanager.index');
+
+    Route::get('/files', [FileManagerController::class, 'files'])->name('filemanager.files');
   });
 
 //Admin Routes
@@ -120,6 +126,10 @@ Route::prefix('admin/')
     Route::get('/catalog_item/edit/{id}', [CatalogItemController::class, 'edit'])->name('catalog.item.edit');
     Route::put('/catalog_item/update/{id}', [CatalogItemController::class, 'update'])->name('catalog.item.update');
     Route::delete('/catalog_item/delete/{id}', [CatalogItemController::class, 'delete'])->name('catalog.item.delete');
+
+    // Filemanager
+
+    Route::get('/filemanager', [FileManagerController::class, 'index'])->name('filemanager.index');
   });
 
 
