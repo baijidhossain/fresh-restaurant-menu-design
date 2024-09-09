@@ -10,7 +10,7 @@
 
   <header>
 
-    <div class="container-fluid" style="
+    <div class="container-fluid header-container" style="
           background: linear-gradient(360deg, rgb(0 0 0), rgb(255 255 255 / 60%)), rgb(7 7 7 / 60%) url('{{ $restaurant->banner ? \Storage::url($restaurant->banner) : \Storage::url('default/restaurant-bannr-pleaceholder.jpg') }}');
           background-blend-mode: overlay;
           background-position: center;
@@ -140,25 +140,26 @@
                         <div class="_card border-0">
                           <div class="card-body p-2">
 
-                            <form action="{{ route('account.restaurant.update',$restaurant->id) }}" method="post" enctype="multipart/form-data">
+                            <form class="general_information_form" action="{{ route('account.restaurant.update',$restaurant->id) }}" method="post" enctype="multipart/form-data">
 
                              @csrf
 
                               <div class="row justify-content-center">
                                 <div class="col-6 col-md-4">
-                                  <div class="mb-3">
+                                  <div class="mb-3 logo_section">
                                   
-                                    {{-- <a href="{{ route("account.filemanager.files") }}" data-bs-toggle="modal" data-bs-target="#dynamicmodal">files</a> --}}
-
+                              
                                     <label for="banner" class="custom-form-label form-label text-nowrap"> Logo <small class="font-size-10 fw-medium"> (Ratio 1:1 || Max: 500kb) </small> </label>
 
                                     <div class="drop-area" id="drop-area-logo">
-                                      <input type="file" id="file-input-logo" name="logo" accept="image/*" hidden>
-                                      <img id="preview-logo"
+                                      <input type="file" class="input_logo" name="logo" accept="image/*" hidden>
+
+                                      <img  class="preview_logo"
                                     
                                         src="{{ $restaurant->logo ? \Storage::url($restaurant->logo) : \Storage::url('default/restaurant-logo-pleaceholder.png') }}"
                                         alt="Logo Preview" style=" max-width: 100%;">
-                                      <i class="ri-upload-2-line upload_icon" id="icon-logo"></i>
+                                    
+                                      <a href="{{ route("account.filemanager.files",'logo_modal') }}" data-bs-toggle="modal" data-bs-target="#dynamicmodal"><i class="ri-upload-2-line upload_icon"></i></a>
                                     </div>
 
                                     @error('logo')
@@ -168,24 +169,30 @@
                                 </div>
 
                                 <div class="col-6 col-md-4">
-                                  <div class="mb-3">
-                            
-                                    <label for="banner" class="custom-form-label form-label text-nowrap"> Banner <small class="font-size-10 fw-medium">(Ratio 3:1 || Max: 1mb)</small> </label>
 
+                                  <div class="mb-3 banner_section">
+                                    <label for="banner" class="custom-form-label form-label text-nowrap">
+                                      Banner <small class="font-size-10 fw-medium">(Ratio 3:1 || Max: 1mb)</small>
+                                    </label>
+                                  
                                     <div class="drop-area" id="drop-area-banner">
-                                      <input type="file" id="file-input-banner" name="banner" accept="image/*" hidden>
-                                      <input type="text" hidden class="existBannerPath" name="existBannerPath">
-                                      <img id="preview-banner" class="preview_banner"
-                                        src="{{ $restaurant->banner ? \Storage::url($restaurant->banner) : \Storage::url('default/restaurant-banner-pleaceholder.jpg') }}"
-                                        alt="Banner Preview" style=" max-width: 100%;">
+                                      <input type="file" class="input_banner" name="banner" accept="image/*" hidden>
                                       
-                                      <a href="{{ route("account.filemanager.files") }}" data-bs-toggle="modal" data-bs-target="#dynamicmodal"><i class="ri-upload-2-line upload_icon"></i></a>
+                                      <img class="preview_banner"
+                                           src="{{ $restaurant->banner ? \Storage::url($restaurant->banner) : \Storage::url('default/restaurant-banner-placeholder.jpg') }}"
+                                           alt="Banner Preview" style="max-width: 100%;">
+                                      
+                                      <a href="{{ route('account.filemanager.files', 'banner_modal') }}" data-bs-toggle="modal" data-bs-target="#dynamicmodal">
+                                        <i class="ri-upload-2-line upload_icon"></i>
+                                      </a>
                                     </div>
-
+                                  
                                     @error('banner')
                                     <p class="text-danger mt-1">{{ $message }}</p>
                                     @enderror
                                   </div>
+                                  
+
                                 </div>
 
                               </div>

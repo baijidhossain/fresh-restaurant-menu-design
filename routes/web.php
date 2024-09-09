@@ -71,7 +71,7 @@ Route::prefix('/')
     // File Manager
     Route::get('/filemanager', [FileManagerController::class, 'index'])->name('filemanager.index');
 
-    Route::get('/files', [FileManagerController::class, 'files'])->name('filemanager.files');
+    Route::get('/files/{modal_type}', [FileManagerController::class, 'files'])->name('filemanager.files');
   });
 
 //Admin Routes
