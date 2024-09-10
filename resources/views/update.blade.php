@@ -2,6 +2,7 @@
 
 <x-frontend-layout>
 
+
   @push('css')
 
   @endpush
@@ -145,27 +146,32 @@
                              @csrf
 
                               <div class="row justify-content-center">
+
                                 <div class="col-6 col-md-4">
+                                  
                                   <div class="mb-3 logo_section">
                                   
-                              
                                     <label for="banner" class="custom-form-label form-label text-nowrap"> Logo <small class="font-size-10 fw-medium"> (Ratio 1:1 || Max: 500kb) </small> </label>
 
-                                    <div class="drop-area" id="drop-area-logo">
+                                    <div class="drop-area" id="drop-area-logo" style="width: 70px !important;">
+                                  <a href="{{ route("account.filemanager.files",'logo_modal') }}" data-bs-toggle="modal" data-bs-target="#fileManagerModal">
                                       <input type="file" class="input_logo" name="logo" accept="image/*" hidden>
 
                                       <img  class="preview_logo"
-                                    
                                         src="{{ $restaurant->logo ? \Storage::url($restaurant->logo) : \Storage::url('default/restaurant-logo-pleaceholder.png') }}"
                                         alt="Logo Preview" style=" max-width: 100%;">
                                     
-                                      <a href="{{ route("account.filemanager.files",'logo_modal') }}" data-bs-toggle="modal" data-bs-target="#dynamicmodal"><i class="ri-upload-2-line upload_icon"></i></a>
+                                     <i class="ri-upload-2-line upload_icon"></i>
+
+                                    </a>
                                     </div>
 
                                     @error('logo')
                                     <p class="text-danger mt-1">{{ $message }}</p>
                                     @enderror
+
                                   </div>
+
                                 </div>
 
                                 <div class="col-6 col-md-4">
@@ -177,12 +183,12 @@
                                   
                                     <div class="drop-area" id="drop-area-banner">
                                       <input type="file" class="input_banner" name="banner" accept="image/*" hidden>
-                                      
+                                      <a href="{{ route('account.filemanager.files', 'banner_modal') }}" data-bs-toggle="modal" data-bs-target="#fileManagerModal">
                                       <img class="preview_banner"
                                            src="{{ $restaurant->banner ? \Storage::url($restaurant->banner) : \Storage::url('default/restaurant-banner-placeholder.jpg') }}"
                                            alt="Banner Preview" style="max-width: 100%;">
                                       
-                                      <a href="{{ route('account.filemanager.files', 'banner_modal') }}" data-bs-toggle="modal" data-bs-target="#dynamicmodal">
+                                      
                                         <i class="ri-upload-2-line upload_icon"></i>
                                       </a>
                                     </div>
@@ -635,239 +641,199 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 
   <!-- Initialize Slick Slider -->
-  <script type="text/javascript">
+ <script type="text/javascript">
 
-    $(document).on('click', '[data-bs-target="#dynamicmodal"]', function (e) {
-      e.preventDefault();
+   $(document).on('click', '[data-bs-target="#dynamicmodal"]', function(e) {
+     e.preventDefault();
+     // Get the URL from the href attribute
+     var url = $(this).attr('href');
+     // Perform the AJAX request
+     $.ajax({
+       url: url,
+       type: 'GET',
+       dataType: 'html', // Expecting HTML response to populate the modal
+       success: function(response) {
+         // Populate the modal content
+         $('#dynamicmodal .modal-content').html(response);
+         // Show the modal
+         $("#dynamicmodal").Modal("show")
+       },
+       error: function(xhr, status, error) {
+         // Handle errors here
+         console.error('Error occurred: ', error);
+       }
+     });
+   });
 
-      // Get the URL from the href attribute
-      var url = $(this).attr('href');
-      // Perform the AJAX request
-      $.ajax({
-        url: url,
-        type: 'GET',
-        dataType: 'html', // Expecting HTML response to populate the modal
-        success: function (response) {
-          // Populate the modal content
-          $('#dynamicmodal .modal-content').html(response);
-          // Show the modal
+   // Fila Manager Modal
+   $(document).on('click', '[data-bs-target="#fileManagerModal"]', function(e) {
+     e.preventDefault();
+     // Get the URL from the href attribute
+     var url = $(this).attr('href');
+     // Perform the AJAX request
 
-          $("#dynamicmodal").Modal("show")
-        },
-        error: function (xhr, status, error) {
-          // Handle errors here
-          console.error('Error occurred: ', error);
-        }
-      });
-    });
-    
-    $(document).ready(function() {
+    //  $("#fileManagerModal").Modal("show")
+     $.ajax({
+       url: url,
+       type: 'GET',
+       dataType: 'html', // Expecting HTML response to populate the modal
+       success: function(response) {
+         // Populate the modal content
+         $('#fileManagerModal .modal-content').html(response);
+         // Show the modal
+        //  $("#fileManagerModal").Modal("show")
+       },
+       error: function(xhr, status, error) {
+         // Handle errors here
+         console.error('Error occurred: ', error);
+       }
+     });
+   });
+   
+   // Image preview and drag & drop handling
+   function setupDropArea(dropAreaId, fileInputId, previewId, iconId, maxSize) {
+     var $dropArea = $('#' + dropAreaId);
+     var $fileInput = $('#' + fileInputId);
+     var $preview = $('#' + previewId);
+     var $icon = $('#' + iconId);
 
-      $('.your-slider').slick({
-        infinite: true,
-        speed: 300,
-        slidesToShow: 4,
-        autoplaySpeed: 500,
-        prevArrow: '<button type="button" class="slick-prev"></button>',
-        nextArrow: '<button type="button" class="slick-next"></button>',
-        responsive: [{
-            breakpoint: 1200,
-            settings: {
-              slidesToShow: 4,
-              slidesToScroll: 1
-            }
-          },
-          {
-            breakpoint: 992,
-            settings: {
-              slidesToShow: 4,
-              slidesToScroll: 1
-            }
-          },
-          {
-            breakpoint: 768,
-            settings: {
-              slidesToShow: 4,
-              slidesToScroll: 1
-            }
-          },
-          {
-            breakpoint: 576,
-            settings: {
-              slidesToShow: 3,
-              slidesToScroll: 1
-            }
-          }
-        ]
-      });
+     function handleFile(files) {
+       if (files.length > 0) {
+         var file = files[0];
+         // Calculate file size in MB
+         var fileSizeMB = (file.size / 1024 / 1024).toFixed(2); // Size in MB with two decimal points
+         var maxSizeMB = (maxSize / 1024 / 1024).toFixed(2); // Max size in MB
+         // Check file size
+         if (file.size > maxSize) {
+           // AlertModal(type,title,message)
+           AlertModal('warning', 'Warning', "File size exceeds the maximum limit of " + maxSizeMB +
+             " MB. Your file size is " + fileSizeMB + " MB.");
+           $fileInput.val(''); // Clear the file input
+           $preview.hide(); // Hide the preview if the size is exceeded
+           return;
+         }
+         var reader = new FileReader();
+         reader.onload = function(e) {
+           $preview.attr('src', e.target.result).show();
+         };
+         reader.readAsDataURL(file);
+       }
+     }
+     $dropArea.on('dragover', function(event) {
+       event.preventDefault();
+       $(this).addClass('dragover');
+     });
+     $dropArea.on('dragleave', function() {
+       $(this).removeClass('dragover');
+     });
+     $dropArea.on('drop', function(event) {
+       event.preventDefault();
+       $(this).removeClass('dragover');
+       var files = event.originalEvent.dataTransfer.files;
+       handleFile(files);
+       $fileInput[0].files = files; // Update the hidden file input with the dropped files
+     });
+     $fileInput.on('change', function() {
+       var files = $(this)[0].files;
+       handleFile(files);
+     });
+     // Make the icon trigger the file input click event
+     $icon.on('click', function() {
+       $fileInput.click();
+     });
+   }
 
-    });
+   $(document).ready(function() {
+     setupDropArea('drop-area-logo', 'file-input-logo', 'preview-logo', 'icon-logo', 500 * 1024); // 500 KB
+     setupDropArea('drop-area-banner', 'file-input-banner', 'preview-banner', 'icon-banner', 1 * 1024 *
+     1024); // 1 MB
+     setupDropArea('drop-area-product', 'file-input-product', 'preview-product', 'icon-product', 1 * 1024 *
+     1024); // 1 MB for product as well
+   });
 
-    // Image preview and drag & drop handling
-    function setupDropArea(dropAreaId, fileInputId, previewId, iconId, maxSize) {
+   //Password Toggle 
+   $(document).ready(function() {
+     $('.toggle-password').on('click', function() {
+       var target = $($(this).data('target'));
+       var icon = $(this).find('i');
+       if (target.attr('type') === 'password') {
+         target.attr('type', 'text');
+         icon.removeClass('ri-eye-off-line').addClass('ri-eye-line');
+       } else {
+         target.attr('type', 'password');
+         icon.removeClass('ri-eye-line').addClass('ri-eye-off-line');
+       }
+     });
+   });
 
-      var $dropArea = $('#' + dropAreaId);
-      var $fileInput = $('#' + fileInputId);
-      var $preview = $('#' + previewId);
-      var $icon = $('#' + iconId);
+   //Accordion always open after page loading 
+   $(document).ready(function() {
+     // Event listener for accordion buttons
+     $('.custom-accordion-button').on('click', function() {
+       // Get the custom value from the data-accordion-name attribute
+       var accordion_name = $(this).data('accordion-name');
+       // Add the custom value to localStorage
+       localStorage.setItem('accordion_name', accordion_name);
+     });
+     // Check if the accordion_name exists in localStorage and expand the corresponding accordion item
+     var storedAccordionName = localStorage.getItem('accordion_name');
+     if (storedAccordionName) {
+       // Find the accordion button with the stored accordion name
+       var targetAccordion = $('.custom-accordion-button[data-accordion-name="' + storedAccordionName + '"]');
+       // If the target accordion button exists, expand its parent accordion item
+       if (targetAccordion.length) {
+         targetAccordion.parents('.accordion-item').find('.accordion-collapse').addClass('show');
+       }
+     }
+   });
 
-      function handleFile(files) {
-        if (files.length > 0) {
-          var file = files[0];
-
-          // Calculate file size in MB
-          var fileSizeMB = (file.size / 1024 / 1024).toFixed(2); // Size in MB with two decimal points
-          var maxSizeMB = (maxSize / 1024 / 1024).toFixed(2); // Max size in MB
-
-          // Check file size
-          if (file.size > maxSize) {
-            // AlertModal(type,title,message)
-            AlertModal('warning', 'Warning',  "File size exceeds the maximum limit of " + maxSizeMB + " MB. Your file size is " + fileSizeMB + " MB.");
-            $fileInput.val(''); // Clear the file input
-            $preview.hide(); // Hide the preview if the size is exceeded
-            return;
-          }
-
-          var reader = new FileReader();
-          reader.onload = function(e) {
-            $preview.attr('src', e.target.result).show();
-          };
-          reader.readAsDataURL(file);
-          
-        }
-
-      }
-
-      $dropArea.on('dragover', function(event) {
-        event.preventDefault();
-        $(this).addClass('dragover');
-      });
-
-      $dropArea.on('dragleave', function() {
-        $(this).removeClass('dragover');
-      });
-
-      $dropArea.on('drop', function(event) {
-        event.preventDefault();
-        $(this).removeClass('dragover');
-        var files = event.originalEvent.dataTransfer.files;
-        handleFile(files);
-        $fileInput[0].files = files; // Update the hidden file input with the dropped files
-      });
-
-      $fileInput.on('change', function() {
-        var files = $(this)[0].files;
-        handleFile(files);
-      });
-
-      // Make the icon trigger the file input click event
-      $icon.on('click', function() {
-        $fileInput.click();
-      });
-    }
-
-    $(document).ready(function() {
-      setupDropArea('drop-area-logo', 'file-input-logo', 'preview-logo', 'icon-logo', 500 * 1024); // 500 KB
-      setupDropArea('drop-area-banner', 'file-input-banner', 'preview-banner', 'icon-banner', 1 * 1024 * 1024); // 1 MB
-      setupDropArea('drop-area-product', 'file-input-product', 'preview-product', 'icon-product', 1 * 1024 * 1024); // 1 MB for product as well
-    });
-    
-    //Password Toggle 
-    $(document).ready(function() {
-        $('.toggle-password').on('click', function() {
-            var target = $($(this).data('target'));
-            var icon = $(this).find('i');
-
-            if (target.attr('type') === 'password') {
-                target.attr('type', 'text');
-                icon.removeClass('ri-eye-off-line').addClass('ri-eye-line');
-            } else {
-                target.attr('type', 'password');
-                icon.removeClass('ri-eye-line').addClass('ri-eye-off-line');
-            }
-        });
-    });
-
-    //Accordion always open after page loading 
-    $(document).ready(function() {
-      
-        // Event listener for accordion buttons
-        $('.custom-accordion-button').on('click', function() {
-        
-            // Get the custom value from the data-accordion-name attribute
-            var accordion_name = $(this).data('accordion-name');
-            // Add the custom value to localStorage
-            localStorage.setItem('accordion_name', accordion_name);
-        });
-
-        // Check if the accordion_name exists in localStorage and expand the corresponding accordion item
-        var storedAccordionName = localStorage.getItem('accordion_name');
-
-        if(storedAccordionName) {
-            // Find the accordion button with the stored accordion name
-            var targetAccordion = $('.custom-accordion-button[data-accordion-name="' + storedAccordionName + '"]');
-
-            // If the target accordion button exists, expand its parent accordion item
-            if (targetAccordion.length) {
-                targetAccordion.parents('.accordion-item').find('.accordion-collapse').addClass('show');
-            }
-        }
-
-    });
-
-    // Alert modal
-    function AlertModal(type, title, message) {
-      // Get the modal elements
-      const modalTitle = $('#dynamic-modal-title');
-      const modalMessage = $('#dynamic-modal-message');
-      const iconElement = $('#dynamic-modal-icon');
-      const modalContent = $('.dynamic-modal-content');
-      const iconBackground = $(".icon-background");
-
-      // Set the modal title and message
-      modalTitle.text(title);
-      modalMessage.text(message);
-
-      // Reset modal classes and icon
-      modalContent.attr('class', 'modal-content text-center dynamic-modal-content');
-      iconElement.attr('class', '');
-
-      // Set the icon and styling based on the type of modal
-      switch (type) {
-        case 'success':
-          iconBackground.addClass('success');
-          iconElement.addClass('ri-check-fill ');
-          break;
-        case 'info':
-          iconBackground.addClass('info');
-          iconElement.addClass('ri-information-fill');
-          break;
-        case 'error':
-          iconBackground.addClass('error');
-          iconElement.addClass('ri-alert-fill');
-
-          break;
-        case 'warning':
-          iconBackground.addClass('warning');
-          iconElement.addClass('ri-alert-fill');
-          break;
-        default:
-          iconBackground.addClass('success');
-          iconElement.addClass('ri-information-fill ');
-          break;
-      }
-
-      // Initialize and show the modal
-      const dynamicModal = new bootstrap.Modal($('#dynamic-modal')[0]);
-      dynamicModal.show();
-    }
-
-    // Delete modal
-    function runDelete(path = "") {
-        // Create the delete button HTML
-        var csrfToken = '{{ csrf_token() }}';
-
-        var deleteBtnHtml = `
+   // Alert modal
+   function AlertModal(type, title, message) {
+     // Get the modal elements
+     const modalTitle = $('#dynamic-modal-title');
+     const modalMessage = $('#dynamic-modal-message');
+     const iconElement = $('#dynamic-modal-icon');
+     const modalContent = $('.dynamic-modal-content');
+     const iconBackground = $(".icon-background");
+     // Set the modal title and message
+     modalTitle.text(title);
+     modalMessage.text(message);
+     // Reset modal classes and icon
+     modalContent.attr('class', 'modal-content text-center dynamic-modal-content');
+     iconElement.attr('class', '');
+     // Set the icon and styling based on the type of modal
+     switch (type) {
+       case 'success':
+         iconBackground.addClass('success');
+         iconElement.addClass('ri-check-fill ');
+         break;
+       case 'info':
+         iconBackground.addClass('info');
+         iconElement.addClass('ri-information-fill');
+         break;
+       case 'error':
+         iconBackground.addClass('error');
+         iconElement.addClass('ri-alert-fill');
+         break;
+       case 'warning':
+         iconBackground.addClass('warning');
+         iconElement.addClass('ri-alert-fill');
+         break;
+       default:
+         iconBackground.addClass('success');
+         iconElement.addClass('ri-information-fill ');
+         break;
+     }
+     // Initialize and show the modal
+     const dynamicModal = new bootstrap.Modal($('#dynamic-modal')[0]);
+     dynamicModal.show();
+   }
+   
+   // Delete modal
+   function runDelete(path = "") {
+     // Create the delete button HTML
+     var csrfToken = '{{ csrf_token() }}';
+     var deleteBtnHtml = `
         <form action="${path}" method="POST">
           <input type="hidden" name="_method" value="DELETE">
           <input type="hidden" name="_token" value="${csrfToken}">
@@ -879,17 +845,13 @@
         <button type="button" class="btn btn-outline-danger" id="deletemodal-dismis" data-bs-dismiss="modal">No, keep
           it</button>
         `;
-
-        // Insert the HTML into the modal footer
-        $('.delete-modal-footer').html(deleteBtnHtml);
-
-        // Show the modal
-        var deleteModal = new bootstrap.Modal(document.getElementById('deletealert'));
-        deleteModal.show();
-
-    }
-
-  </script>
+     // Insert the HTML into the modal footer
+     $('.delete-modal-footer').html(deleteBtnHtml);
+     // Show the modal
+     var deleteModal = new bootstrap.Modal(document.getElementById('deletealert'));
+     deleteModal.show();
+   }
+ </script>
 
 @endpush
 

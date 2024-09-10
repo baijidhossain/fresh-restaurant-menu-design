@@ -28,19 +28,37 @@
 
 </footer> --}}
 
+@php
 
+$response = Http::get('https://cdn.ancbd.com/content.php?domain=manu.gocards.com.bd&block=top_block');
 
-<div class="container mt-2">
-  <div class="row justify-content-center">
-    <div class="col-lg-8 col-md-10 col-sm-12 col-xxl-10">
+$ads = $response->body();
 
-      <footer class="footer">
-        <p class="text-dark mb-0 ">Copyright © 2024 <a href="http://gocards.com.bd" class="text-decoration-none fw-bold"
-            target="_blank">Go Cards</a>.
-          All Rights
-          Reserved.</p>
-      </footer>
+@endphp
+<footer>
+  <div class="container mt-2">
+    <div class="row justify-content-center">
 
+      @if ($ads)
+
+      <div class="col-lg-8 col-md-10 col-sm-12 col-xxl-10">
+        <div class="ads mt-3 mb-3">
+          {!! $ads !!}
+        </div>
+      </div>
+
+      @endif
+
+      <div class="col-lg-8 col-md-10 col-sm-12 col-xxl-10">
+
+        <div class="footer">
+          <p class="text-dark mb-0 ">Copyright © 2024 <a href="http://gocards.com.bd"
+              class="text-decoration-none fw-bold" target="_blank">Go Cards</a>.
+            All Rights
+            Reserved.</p>
+        </div>
+
+      </div>
     </div>
   </div>
-</div>
+</footer>

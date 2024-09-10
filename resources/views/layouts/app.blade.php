@@ -42,15 +42,25 @@
 
   @include('layouts.footer')
 
+  {{-- Dynamic Modal --}}
   <div class="modal fade" id="dynamicmodal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-labelledby="dynamicmodal" aria-hidden="true">
-
     <div class="modal-dialog" role="document">
       <div class="modal-content">
 
       </div>
     </div>
+  </div>
 
+
+  {{-- File Manager Modal--}}
+  <div class="modal fade" id="fileManagerModal" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-2"
+    aria-labelledby="fileManagerModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content rounded-0">
+
+      </div>
+    </div>
   </div>
 
 
@@ -97,6 +107,7 @@
       </div>
     </div>
   </div>
+  
 
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -106,8 +117,8 @@
    <!-- Include Notyf JavaScript from CDN -->
    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
 
-   <link rel="stylesheet" href="{{ asset("public/assets/frontend/js/script.js") }}">
-  
+   {{-- <link rel="stylesheet" href="{{ asset("public/assets/frontend/js/script.js") }}">
+   --}}
       <!-- Initialize Notyf and handle notifications -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {

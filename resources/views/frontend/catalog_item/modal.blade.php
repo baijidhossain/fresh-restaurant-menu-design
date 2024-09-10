@@ -1,10 +1,11 @@
 @if ($action == "add")
 
-<form action="{{ route('account.catalog.item.store') }}" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+<form action="{{ route('account.catalog.item.store') }}" method="POST" enctype="multipart/form-data"
+  onsubmit="return validateForm()">
   @csrf
   <div class="modal-header">
     <h5 class="modal-title" id="exampleModalLabel">{{ $modal_title }}</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
   </div>
 
   <div class="modal-body">
@@ -67,22 +68,29 @@
 
       <div class="col-md-4">
         <div class="mb-3">
-          <label for="file-input-product" class="form-label required-star">Product Image<span
-              class="required-indicator">*</span></label>
-          <div class="drop-area" id="drop-area-product">
-            <input type="file" id="file-input-product" accept="image/*" name="product" hidden>
-            <img id="preview-product"
-              src="{{ old('product') ? asset('storage/restaurant/product/' . old('product')) : '' }}"
-              alt="Product Preview" style="display: {{ old('product') ? 'block' : 'none' }}; max-width: 100%;">
-            <i class="ri-upload-2-line upload_icon" id="icon-product"
-              style="display: {{ old('product') ? 'none' : 'block' }};"></i>
-          </div>
+          <label for="file-input-product" class="form-label required-star"> Product Image <span
+              class="required-indicator">*</span> </label>
+
+          <a href="{{ route("account.filemanager.files",'item_modal') }}" data-bs-toggle="modal" class="parent-of-input-and-preview-image-tag" data-bs-target="#fileManagerModal">
+
+            <div class="drop-area" id="drop-area-product">
+
+              <input type="file" class="file-input-product" accept="image/*" name="product" hidden>
+              <img class="preview-product" src="#" alt="Product Preview"
+                style="display: {{ old('product') ? 'block' : 'none' }}; max-width: 100%;">
+              <i class="ri-upload-2-line upload_icon"></i>
+
+            </div>
+
+          </a>
+
           @error('product')
           <p class="text-red-600 text-sm mt-1">{{ $message }} </p>
           @enderror
           <p class="text-red-600 text-sm mt-1 text-danger font-size-11 image-validate"> </p>
         </div>
       </div>
+
     </div>
 
     <div class="mb-3">
@@ -235,14 +243,15 @@
               class="required-indicator">*</span></label>
           <div class="drop-area" id="drop-area-product">
 
-            <input type="file" id="file-input-product" accept="image/*" name="product" hidden>
+            <input type="file" class="file-input-product" accept="image/*" name="product" hidden>
 
-            <img id="preview-product" src="{{ $catalog_item->image ? \Storage::url($catalog_item->image ) : '' }}"
+            <img  class="preview-product" src="{{ $catalog_item->image ? \Storage::url($catalog_item->image ) : '' }}"
               alt="Product Preview" style="display: {{ $catalog_item->image ? 'block' : 'none' }}; max-width: 100%;">
             <i class="ri-upload-2-line upload_icon" id="icon-product"></i>
           </div>
           @error('product')
           <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+          
           @enderror
         </div>
       </div>
@@ -326,7 +335,7 @@
 
 @endif
 
-<script>
+{{-- <script>
   // Image preview and drag & drop handling
   function setupDropArea(dropAreaId, fileInputId, previewId, iconId, maxSize) {
     var $dropArea = $('#' + dropAreaId);
@@ -383,30 +392,22 @@
     setupDropArea('drop-area-product', 'file-input-product', 'preview-product', 'icon-product', 1 * 1024 *
       1024); // 1 MB for product as well
   });
-</script>
+</script> --}}
 
 <script>
-
-function validateForm() {
-    const imageInput = $("#file-input-product").val();
-
+  function validateForm() {
+    const imageInput = $(".file-input-product").val();
     if (!imageInput) {
-        $(".image-validate").text("Please upload an image.");
-
-        // Apply CSS with !important
-        $(".drop-area#drop-area-product")[0].style.setProperty("height", "100px", "important");
-
-        // Clear the message after 3 seconds
-        setTimeout(function(){ 
-          $(".image-validate").text("")
-          $(".drop-area#drop-area-product")[0].style.setProperty("height", "120px", "important");
-        
-        }, 3000);
-
-        return false; // Prevent form submission
+      $(".image-validate").text("Please upload an image.");
+      // Apply CSS with !important
+      $(".drop-area#drop-area-product")[0].style.setProperty("height", "100px", "important");
+      // Clear the message after 3 seconds
+      setTimeout(function() {
+        $(".image-validate").text("")
+        $(".drop-area#drop-area-product")[0].style.setProperty("height", "120px", "important");
+      }, 3000);
+      return false; // Prevent form submission
     }
     return true; // Form is valid
-}
-
-
+  }
 </script>

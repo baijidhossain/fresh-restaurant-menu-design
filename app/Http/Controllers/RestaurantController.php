@@ -61,15 +61,6 @@ class RestaurantController extends Controller
       }
 
 
-      // Banner or logo path from modal
-      // if ($request->banner_modal) {
-      //   $bannerPath = str_replace('/storage/', '', $request->banner_modal);
-      // }
-
-      // if ($request->logo_modal) {
-      //   $logoPath = str_replace('/storage/', '', $request->logo_modal);
-      // }
-
       // Update the restaurant details
       DB::table('restaurants')->where('id', $id)->update([
         'name' => $request->input('name'),

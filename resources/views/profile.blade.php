@@ -3,6 +3,12 @@
     @push('css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" />
       <style>
+        body{
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        }
+
         input[type="search"]::-webkit-search-cancel-button {
           -webkit-appearance: none;
           appearance: none;
@@ -154,8 +160,7 @@
   </header>
  
 
-
-  <div class="container mt-xl-2">
+  <div class="container mt-xl-2" style="flex-grow: 1;">
 
     <div class="row justify-content-center">
 
@@ -183,7 +188,6 @@
                 </form>
 
 
-
                 <div class="nav mt-2  catalog-slider" id="nav-tab" role="tablist">
 
                   <button data-catalog="popular" style="width: auto;" class="btn  m-2  text-nowrap getitems menu_active menu_category_button active" >Popular</button>
@@ -208,17 +212,9 @@
 
               <div class="catalog-wise-product ">
 
-
-
                 <div class="menu_items">
                 </div>
 
-                @if ($ads)
-                <div class="ads mt-3">
-                  {!! $ads !!}
-                </div>
-                @endif
-              
               </div>
 
               {{-- @endif --}}
@@ -293,7 +289,7 @@
       speed: 300,
       slidesToShow: 4,
       slidesToScroll: 1,
-      autoplay: true,
+      autoplay: false,
       autoplaySpeed: 3000,
       prevArrow: '<button type="button" class="slick-prev">‹</button>',
       nextArrow: '<button type="button" class="slick-next">›</button>',
@@ -302,28 +298,15 @@
           breakpoint: 1200,
           settings: {
             slidesToShow: 4,
-            slidesToScroll: 1
+            slidesToScroll: 3
           }
         },
-        {
-          breakpoint: 992,
-          settings: {
-            slidesToShow: 4,
-            slidesToScroll: 1
-          }
-        },
-        {
-          breakpoint: 768,
-          settings: {
-            slidesToShow: 3,
-            slidesToScroll: 1
-          }
-        },
+
         {
           breakpoint: 576,
           settings: {
             slidesToShow: 2,
-            slidesToScroll: 1
+            slidesToScroll: 2
           }
         }
       ]
@@ -477,5 +460,6 @@
   }
 
 </script>
+
   @endpush
 </x-frontend-layout>

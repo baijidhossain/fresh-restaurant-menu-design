@@ -70,6 +70,7 @@ Route::prefix('/')
 
     // File Manager
     Route::get('/filemanager', [FileManagerController::class, 'index'])->name('filemanager.index');
+    Route::get('/filemanager/getitem/{catalog}', [FileManagerController::class, 'getitem'])->name('filemanager.getitem');
 
     Route::get('/files/{modal_type}', [FileManagerController::class, 'files'])->name('filemanager.files');
   });

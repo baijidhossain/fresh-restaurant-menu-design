@@ -44,10 +44,6 @@ class HomeController extends Controller
       return redirect()->route('phone.verify.form');
     }
 
-
-
-
-
     // Fetch restaurant user
     $restaurant_user = RestaurantUser::where('slug', $slug)->firstOrFail();
 
@@ -72,11 +68,7 @@ class HomeController extends Controller
       ->orderBy('catalogs.updated_at', 'desc')
       ->get();
 
-    $response = Http::get('https://cdn.ancbd.com/content.php?domain=manu.gocards.com.bd&block=top_block');
 
-
-
-    $ads = $response->body();
 
     // Return view with data
     return view('profile', [
@@ -84,7 +76,7 @@ class HomeController extends Controller
       'restaurant' => $restaurant,
       'catalogs' => $catalogs,
       'restaurant_user' => $restaurant_user,
-      'ads' => $ads
+
 
     ]);
   }
@@ -159,6 +151,8 @@ class HomeController extends Controller
       ->join('catalogs', 'catalog_items.catalog_id', '=', 'catalogs.id')
       ->where('catalogs.restaurant_id', $restaurant->id)
       ->select('catalog_items.*', 'catalogs.name as catalog_name')
+      ->orderBy('catalog_items.display_order', 'asc') // Orders by display_order in ascending order
+      ->orderBy('catalog_items.created_at', 'desc') // Then orders by created_at in ascending order
       ->paginate(8, ['*'], 'item_page', $itemPage);
 
     // Calculate serial index for catalog items
