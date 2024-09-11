@@ -21,11 +21,24 @@
     color: #5f6368 !important;
   }
 
+  .list-group-item{
+    font-weight: 500;
+    font-size: 15px;
+  }
+
   .list-group-item.active {
     z-index: 2;
-    color: #0d6efd;
-    background-color: rgba(13, 110, 253, 0.1);
-  }
+    color: #0d6efd !important;
+    background-color: rgba(13, 110, 253, 0.1) !important;
+    border-color: #0d6efd !important;
+}
+
+  .list-group-item+.list-group-item.active {
+    margin-top: 0;
+    border-top-width: 0;
+    color: #0d6efd !important;
+    background-color: rgba(13, 110, 253, 0.1) !important;
+}
 
   @media only screen and (max-width: 400px) {
     .list-group-item {
