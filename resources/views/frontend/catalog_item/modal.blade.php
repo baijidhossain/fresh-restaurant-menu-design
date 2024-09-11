@@ -75,8 +75,8 @@
 
             <div class="drop-area" id="drop-area-product">
 
-              <input type="file" class="file-input-product" accept="image/*" name="product" hidden>
-              <img class="preview-product" src="#" alt="Product Preview"
+              <input type="file" class="item-image-input" accept="image/*" name="product" hidden>
+              <img class="item-image-preview" src="#" alt="Product Preview"
                 style="display: {{ old('product') ? 'block' : 'none' }}; max-width: 100%;">
               <i class="ri-upload-2-line upload_icon"></i>
 
@@ -94,7 +94,7 @@
     </div>
 
     <div class="mb-3">
-      <label for="description" class="form-label required-star">Description <span class="required-indicator">*</span>
+      <label for="description" class="form-label required-star"> Description <span class="required-indicator">*</span>
       </label>
       <small>(Max 150 char)</small>
       <textarea class="form-control" id="description" name="description" rows="2" placeholder="Ex: Description..."
@@ -105,16 +105,17 @@
     </div>
 
     <div class="row">
+
       <div class="col-6">
 
         <div class="mb-3">
-          <label for="status" class="form-label required-star">Status <span class="required-indicator">*</span></label>
+          <label for="status" class="form-label required-star"> Status <span class="required-indicator">*</span></label>
           <select class="form-select" aria-label="status" name="status" required id="status">
             <option selected value="1" {{ old('status') == '1' ? 'selected' : '' }}>Publish</option>
             <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Disable</option>
           </select>
           @error('status')
-          <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+          <p class="text-red-600 text-sm mt-1"> {{ $message }} </p>
           @enderror
         </div>
 
@@ -242,12 +243,13 @@
           <label for="file-input-product" class="form-label form-label required-star">Product Image <span
               class="required-indicator">*</span></label>
           <div class="drop-area" id="drop-area-product">
+                <a href="{{ route("account.filemanager.files",'item_modal') }}" data-bs-toggle="modal" class="parent-of-input-and-preview-image-tag" data-bs-target="#fileManagerModal">
+                  <input type="file" class="item-image-input" accept="image/*" name="product" hidden>
 
-            <input type="file" class="file-input-product" accept="image/*" name="product" hidden>
-
-            <img  class="preview-product" src="{{ $catalog_item->image ? \Storage::url($catalog_item->image ) : '' }}"
-              alt="Product Preview" style="display: {{ $catalog_item->image ? 'block' : 'none' }}; max-width: 100%;">
-            <i class="ri-upload-2-line upload_icon" id="icon-product"></i>
+                  <img class="item-image-preview" src="{{ $catalog_item->image ? \Storage::url($catalog_item->image ) : '' }}"
+                    alt="Product Preview" style="display: {{ $catalog_item->image ? 'block' : 'none' }}; max-width: 100%;">
+                  <i class="ri-upload-2-line upload_icon" id="icon-product"></i>
+                </a>
           </div>
           @error('product')
           <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
@@ -258,7 +260,7 @@
     </div>
 
     <div class="mb-3">
-      <label for="description" class="form-label required-star">Description <span
+      <label for="description" class="form-label required-star"> Description <span
           class="required-indicator">*</span></label>
       <small>(Max 150 char)</small>
       <textarea class="form-control" id="description" name="description" rows="2" placeholder="Ex: Description..."
@@ -396,7 +398,7 @@
 
 <script>
   function validateForm() {
-    const imageInput = $(".file-input-product").val();
+    const imageInput = $(".item-image-input").val();
     if (!imageInput) {
       $(".image-validate").text("Please upload an image.");
       // Apply CSS with !important

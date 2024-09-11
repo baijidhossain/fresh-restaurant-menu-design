@@ -9,6 +9,7 @@ use App\Models\Catalog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+
 class FileManagerController extends Controller
 {
   function index() {}
@@ -23,9 +24,13 @@ class FileManagerController extends Controller
     $modal_title = "File Manager";
     $fileManagerCatalog = "";
     $action = "";
+
     if ($modal_type === "banner_modal") {
+
       $action = "banner_modal";
+
       $modal_title = "Select Header Background";
+
       $allFiles = Storage::allFiles('public/filemanager/banners');
     } elseif ($modal_type === "logo_modal") {
       $action = "logo_modal";

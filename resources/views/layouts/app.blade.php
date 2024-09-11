@@ -45,12 +45,13 @@
   {{-- Dynamic Modal --}}
   <div class="modal fade" id="dynamicmodal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-labelledby="dynamicmodal" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
 
       </div>
     </div>
   </div>
+  
 
 
   {{-- File Manager Modal--}}
