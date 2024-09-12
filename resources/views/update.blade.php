@@ -4,12 +4,14 @@
 
   @endpush
 
+
+
   @section('meta_title', $restaurant->name)
 
   <header>
 
     <div class="container-fluid header-container" style="
-          background: linear-gradient(360deg, rgb(0 0 0), rgb(255 255 255 / 60%)), rgb(7 7 7 / 60%) url('{{ $restaurant->banner ? \Storage::url($restaurant->banner) : \Storage::url('default/restaurant-bannr-pleaceholder.jpg') }}');
+          background: linear-gradient(360deg, rgb(0 0 0), rgb(255 255 255 / 60%)), rgb(7 7 7 / 60%) url('{{ $restaurant->banner ? \Storage::url("restaurant/banners/".$restaurant->banner) : \Storage::url('default/restaurant-bannr-pleaceholder.jpg') }}');
           background-blend-mode: overlay;
           background-position: center;
           background-size: cover;">
@@ -25,7 +27,7 @@
 
                   <a href="{{ route("profile",auth()->guard('frontend')->user()->slug) }}">
                     <img
-                      src="{{ $restaurant->logo ? \Storage::url($restaurant->logo ?? "") : \Storage::url('default/restaurant-logo-pleaceholder.png') }}"
+                      src="{{ $restaurant->logo ? \Storage::url("restaurant/logos/".$restaurant->logo ?? "") : \Storage::url('default/restaurant-logo-pleaceholder.png') }}"
                       class="logo" alt="logo">
                   </a>
 
@@ -154,7 +156,7 @@
                                   <div class="mb-3 logo_section">
 
                                     <label for="banner" class="custom-form-label form-label text-nowrap"> Logo <small
-                                        class="font-size-10 fw-medium"> (Ratio 1:1 || Max: 500kb) </small> </label>
+                                        class="font-size-10 fw-medium"> (Size 150 x 150px || Max: 500kb) </small> </label>
 
                                     <div class="drop-area" id="drop-area-logo" style="width: 70px !important;">
                                       <a href="{{ route("account.filemanager.files",'logo_modal') }}"
@@ -163,7 +165,7 @@
                                         <input type="file" class="logo-image-input" name="logo" accept="image/*" hidden>
 
                                         <img class="logo-image-preview"
-                                          src="{{ $restaurant->logo ? \Storage::url($restaurant->logo) : \Storage::url('default/restaurant-logo-pleaceholder.png') }}"
+                                          src="{{ $restaurant->logo ? \Storage::url("restaurant/logos/".$restaurant->logo) : \Storage::url('default/restaurant-logo-pleaceholder.png') }}"
                                           alt="Logo Preview" style=" max-width: 100%;">
 
                                         <i class="ri-upload-2-line upload_icon"></i>
@@ -183,7 +185,7 @@
 
                                   <div class="mb-3 banner_section">
                                     <label for="banner" class="custom-form-label form-label text-nowrap">
-                                      Banner <small class="font-size-10 fw-medium">(Ratio 3:1 || Max: 1mb)</small>
+                                      Banner <small class="font-size-10 fw-medium">(Size 850 x 470px || Max: 500kb)</small>
                                     </label>
 
                                     <div class="drop-area" id="drop-area-banner">
@@ -194,7 +196,7 @@
                                         <input type="file" class="banner-image-input" name="banner" accept="image/*"
                                           hidden>
                                         <img class="banner-image-preview"
-                                          src="{{ $restaurant->banner ? \Storage::url($restaurant->banner) : \Storage::url('default/restaurant-banner-placeholder.jpg') }}"
+                                          src="{{ $restaurant->banner ? \Storage::url("restaurant/banners/".$restaurant->banner) : \Storage::url('default/restaurant-banner-placeholder.jpg') }}"
                                           alt="Banner Preview" style="max-width: 100%;">
 
                                         <i class="ri-upload-2-line upload_icon"></i>
@@ -467,7 +469,7 @@
 
                                     <td>
                                       <img class="rounded border"
-                                        src="{{ $item->image ? \Storage::url($item->image ?? "") : \Storage::url('default/item-pleaceholder.png') }}"
+                                        src="{{ $item->image ? \Storage::url("restaurant/products/thumbnails/".$item->image ?? "") : \Storage::url('default/item-pleaceholder.png') }}"
                                         alt="{{ $item->name }} logo" style="width: 50px; height: auto;">
                                     </td>
 

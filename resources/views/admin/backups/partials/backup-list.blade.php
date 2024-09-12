@@ -32,7 +32,7 @@
 
                     <form action="{{ route('backups.delete', ['type' => $type, 'filename' => $backup['name']]) }}" method="POST" class="inline" id="delete">
                         @csrf
-                        @method('DELETE')
+                       
                     </form>
 
 

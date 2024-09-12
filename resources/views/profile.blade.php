@@ -50,7 +50,7 @@
   <header>
 
     <div class="container-fluid" style="
-          background: linear-gradient(360deg, rgb(0 0 0), rgb(255 255 255 / 60%)), rgb(7 7 7 / 60%) url('{{ $restaurant->banner ? \Storage::url($restaurant->banner) : \Storage::url('default/restaurant-bannr-pleaceholder.jpg') }}');
+          background: linear-gradient(360deg, rgb(0 0 0), rgb(255 255 255 / 60%)), rgb(7 7 7 / 60%) url('{{ $restaurant->banner ? \Storage::url("restaurant/banners/".$restaurant->banner) : \Storage::url('default/restaurant-bannr-pleaceholder.jpg') }}');
           background-blend-mode: overlay;
           background-position: center;
           background-size: cover;">
@@ -65,7 +65,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                         <a href="{{ route("profile",$restaurant_user->slug) }}">
                           <div class="logo-container">
-                            <img src="{{ $restaurant->logo ? \Storage::url($restaurant->logo) : \Storage::url('default/restaurant-logo-pleaceholder.png') }}" class="logo" alt="logo">
+                            <img src="{{ $restaurant->logo ? \Storage::url("restaurant/logos/".$restaurant->logo) : \Storage::url('default/restaurant-logo-pleaceholder.png') }}" class="logo" alt="logo">
                           </div>
                         </a>
                  
@@ -195,13 +195,9 @@
                   <button data-catalog="offer" style="width: auto;" class="btn  m-2  text-nowrap getitems menu_active menu_category_button" >Offer</button>
               
                   @forelse ($catalogs as $catalog)
-                  <button data-catalog="{{ $catalog->id }}" style="width: auto;" class="btn  m-2  text-nowrap getitems menu_active menu_category_button"
-                  >{{ $catalog->name }}
-
-                </button>
-                  @php
-                
-                  @endphp
+                  
+                  <button data-catalog="{{ $catalog->id }}" style="width: auto;" class="btn  m-2  text-nowrap getitems menu_active menu_category_button"> {{ $catalog->name }} </button>
+             
                   @empty
 
                   @endforelse

@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\CatalogItemController;
 use App\Http\Controllers\Admin\FileManagerController;
 use App\Http\Controllers\Admin\RestaurantController;
 use App\Models\Restaurant;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +26,10 @@ use App\Models\Restaurant;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+
+
+
 
 Route::view('/', 'index')->name('home');
 
@@ -98,7 +103,7 @@ Route::prefix('admin/')
 
     Route::get('/backups', [BackupController::class, 'index'])->name('backups.index');
     Route::get('/backups/{type}/{filename}/download', [BackupController::class, 'download'])->name('backups.download');
-    Route::delete('/backups/{type}/{filename}', [BackupController::class, 'delete'])->name('backups.delete');
+    Route::post('/backups/{type}/{filename}/delete', [BackupController::class, 'delete'])->name('backups.delete');
     Route::post('/backups', [BackupController::class, 'create'])->name('backups.create');
 
 

@@ -31,9 +31,9 @@
               @csrf
 
               <div class="form-floating mb-3">
-                <input type="email" class="form-control" id="floatingInput" name="email" placeholder="name@example.com"
+                <input type="text" class="form-control" id="floatingInput" name="phone" placeholder="Phone Number"
                   autocomplete="off">
-                <label for="floatingInput">Email address</label>
+                <label for="floatingInput">Phone Number</label>
               </div>
 
               <div class="form-floating mb-3 d-flex">

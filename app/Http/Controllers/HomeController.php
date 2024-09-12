@@ -39,16 +39,13 @@ class HomeController extends Controller
 
   public function profile(Request $request, $slug)
   {
-    // If logged in and not verified, redirect to phone verification
-    if (auth()->guard('frontend')->check() && !auth()->guard('frontend')->user()->is_verified) {
-      return redirect()->route('phone.verify.form');
-    }
 
     // Fetch restaurant user
     $restaurant_user = RestaurantUser::where('slug', $slug)->firstOrFail();
 
     // Log visit
     $agent = new Agent();
+
     Visit::create([
       'ip_address' => $request->ip(),
       'user_agent' => $request->userAgent(),
@@ -68,15 +65,12 @@ class HomeController extends Controller
       ->orderBy('catalogs.updated_at', 'desc')
       ->get();
 
-
-
     // Return view with data
     return view('profile', [
       'user' => $restaurant_user,
       'restaurant' => $restaurant,
       'catalogs' => $catalogs,
       'restaurant_user' => $restaurant_user,
-
 
     ]);
   }
@@ -116,6 +110,7 @@ class HomeController extends Controller
 
   public function edit(Request $request)
   {
+
     $user = auth()->guard('frontend')->user();
 
     $restaurant = DB::table("restaurants")->where("restaurant_user_id", $user->id)->first() ?? [];
@@ -206,6 +201,7 @@ class HomeController extends Controller
 
   public function update(Request $request)
   {
+
 
     $user = auth()->guard('frontend')->user();
 

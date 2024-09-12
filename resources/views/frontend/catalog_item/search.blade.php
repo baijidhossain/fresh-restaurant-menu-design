@@ -7,15 +7,17 @@
           <div class="list-item-content">
 
             <div class="item-image-box">
-              <img class="item-image" data-fancybox="gallery"
-                src="{{ $item->image ? \Storage::url($item->image ?? "") : \Storage::url('default/item-pleaceholder.png') }}"
-                alt="{{ $item->name }} logo">
-
+              <a href="{{ $item->image ? \Storage::url("restaurant/products/".$item->image) : \Storage::url('default/item-placeholder.png') }}" data-fancybox="gallery">
+                <img class="item-image"
+                  src="{{ $item->image ? \Storage::url("restaurant/products/thumbnails/".$item->image) : \Storage::url('default/item-placeholder.png') }}"
+                  alt="{{ $item->name }} logo">
+              </a>
+            
               @if ($item->offer_price > 0)
-              <span class="offer-badge">Offer</span>
+                <span class="offer-badge">Offer</span>
               @endif
-
             </div>
+            
 
             <div class="item-details">
 

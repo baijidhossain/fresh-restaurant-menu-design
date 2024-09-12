@@ -222,14 +222,14 @@
 
         <div class="row">
 
-          <div class="col-4 col-sm-4">
+          <div class="col-6 col-sm-4">
             <div class="list-group mt-3">
               <button class="list-group-item list-group-item-action border-0 rounded-0 rounded-end-5 getItem active"
                 data-catalog="all">Restaurant Background</button>
             </div>
           </div>
 
-          <div class="col-8 col-sm-8">
+          <div class="col-6 col-sm-8">
 
             <div class="overflow-y-scroll pe-3 text-center theme mt-3" id="drop-area-banner" style="height: 500px;">
 
@@ -326,14 +326,14 @@
 
         <div class="row">
 
-          <div class="col-4 col-sm-4">
+          <div class="col-5 col-sm-4">
             <div class="list-group mt-3">
               <button class="list-group-item list-group-item-action border-0 rounded-0 rounded-end-5 getItem active"
                 data-catalog="all">Restaurant Logo</button>
             </div>
           </div>
 
-          <div class="col-8 col-sm-8">
+          <div class="col-7 col-sm-8">
 
             <div class="overflow-y-scroll pe-3 text-center theme mt-3" id="drop-area-banner" style="height: 500px;">
 
@@ -432,7 +432,7 @@
 
         <div class="row">
 
-          <div class="col-4 col-sm-4">
+          <div class="col-5 col-sm-4">
             <div class="list-group mt-3">
               <button class="list-group-item list-group-item-action border-0 rounded-0 rounded-end-5 getItem active"
                 data-catalog="all">All</button>
@@ -449,7 +449,7 @@
             </div>
           </div>
 
-          <div class="col-8 col-sm-8">
+          <div class="col-7 col-sm-8">
 
             <div class="overflow-y-scroll pe-3 text-center theme mt-3" id="drop-area-banner" style="height: 500px;">
 

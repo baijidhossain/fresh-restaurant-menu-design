@@ -29,14 +29,20 @@ class AuthController extends Controller
 
   public function login(Request $request)
   {
-    $credentials = $request->only('email', 'password');
+
+    //if request phone has no country code +88 using regex
+    if (!preg_match('/^\+88/', $request->phone)) {
+      $request = $request->merge(['phone' => '+88' . $request->phone]);
+    }
+
+    $credentials = $request->only('phone', 'password');
 
     if (Auth::guard('frontend')->attempt($credentials)) {
       return redirect()->route('profile', Auth::guard('frontend')->user()->slug);
     }
 
     return back()->withErrors([
-      'email' => 'The provided credentials do not match our records.',
+      'phone' => 'The provided credentials do not match our records.',
     ]);
   }
 
@@ -188,40 +194,44 @@ class AuthController extends Controller
   public function verifyPhoneForm(Request $request)
   {
 
-    $user =  Auth::guard('frontend')->user();
+    //empty
+    if (!$request->session()->has('register-data')) {
+      return redirect()->route('login');
+    }
 
-    $otp = Otp::where('restaurant_user_id', $user->id)
-      ->orderBy('created_at', 'desc')->first();
+    $user =  $request->session()->get('register-data');
+
+    $sessionOTP = $request->session()->get('otp-data');
 
     $now = now()->format('Y-m-d H:i:s');
 
-    if ($otp && $otp->expires_at < $now || !$otp) {
+    if (empty($sessionOTP) || $sessionOTP['expires_at'] < $now) {
 
       $code = rand(1000, 9999);
 
-      Otp::create([
-        'restaurant_user_id' => $user->id,
-        'phone' => $user->phone,
+      $request->session()->put('otp-data', [
+        'phone' => $user['phone'],
         'token' => $code,
-        'expires_at' => now()->addMinutes(5)->format('Y-m-d H:i:s'),
+        'expires_at' => now()->addMinutes(1)->format('Y-m-d H:i:s'),
       ]);
 
-      $sms = new SMS();
-
       try {
-
+        $sms = new SMS();
         $sms->sendSMS(
           "Your verification code is: " . $code . " - From GoCards",
-          $user->phone
+          $user['phone']
         );
       } catch (\Exception $e) {
         Log::info($e->getMessage());
       }
     }
 
-    $resend = route('otp.resend', ['action' => 'verify']);
 
-    return view('verify-phone', ['phone' => $user->phone, 'route' => route('phone.verify'), 'resend' => $resend]);
+    return view('verify-phone', [
+      'phone' => $user['phone'],
+      'route' => route('phone.verify'),
+      'resend' => route('otp.resend', ['action' => 'verify'])
+    ]);
   }
 
   public function resendOtp(Request $request)
@@ -258,20 +268,31 @@ class AuthController extends Controller
       $code .= $value;
     }
 
-    $otp = Otp::where(['restaurant_user_id' => Auth::guard('frontend')->user()->id, 'token' => $code])
-      ->orderBy('created_at', 'desc')->first();
+    $sessionOTP = $request->session()->get('otp-data');
 
-    if ($otp && $otp->expires_at > now()) {
+    $now = now();
 
-      Otp::where(['restaurant_user_id' => Auth::guard('frontend')->user()->id])->delete();
-
-      Auth::guard('frontend')->user()->update(['is_verified' => true]);
-
-      return redirect()->route('profile', Auth::guard('frontend')->user()->slug)->withSuccess("Phone number verified successfully.");
-    } else {
-
-      return redirect()->back()->withErrors(['phone' => 'The OTP you entered is invalid.']);
+    if (empty($sessionOTP) || $sessionOTP['token'] != $code || $sessionOTP['expires_at'] < $now) {
+      return redirect()->back()->withErrors(['otp' => 'The OTP you entered is invalid or expired.']);
     }
+
+    // Create the restaurant user
+    $restaurant_user = RestaurantUser::create($request->session()->get('register-data'));
+
+    $resData = $request->session()->get('register-restaurant-data');
+
+    $resData['restaurant_user_id'] = $restaurant_user->id;
+
+    // Create the restaurant associated with the restaurant user
+    Restaurant::create($resData);
+
+    $request->session()->forget('register-data');
+    $request->session()->forget('register-restaurant-data');
+
+    // Log in the newly registered user
+    Auth::guard('frontend')->login($restaurant_user);
+
+    return redirect()->route('profile', Auth::guard('frontend')->user()->slug)->withSuccess("Phone number verified successfully.");
   }
 
   public function register(Request $request)
@@ -279,44 +300,48 @@ class AuthController extends Controller
     // Find the code based on the provided code in the request
     $code = Code::where('code', $request->code)->firstOrFail();
 
+
+    //remove ' ' or '-' from phone
+    $request = $request->merge(['phone' => preg_replace('/\s+/', '', $request->phone)]);
+    $request = $request->merge(['phone' => preg_replace('/-/', '', $request->phone)]);
+
+    //check  phone has country code +88 using regex
+    if (!preg_match('/^\+88/', $request->phone)) {
+      $request = $request->merge(['phone' => '+88' . $request->phone]);
+    }
+
+
     // Validate the request data
     $this->validate($request, [
       'name' => 'required|max:255',
       'email' => 'required|email|max:255|unique:restaurant_users',
-      'phone' => 'required|unique:restaurant_users',
+      'phone' => 'required|unique:restaurant_users|regex:/^(\+88)[0-9]{11}$/',
       'password' => 'required|min:6|confirmed',
+
       'restaurant_name' => 'required|max:40',
       'restaurant_phone' => 'required|max:20',
       'restaurant_address' => 'required|max:150',
     ]);
 
-    // Create the restaurant user
-    $restaurant_user = RestaurantUser::create([
-      'slug' => RestaurantUser::generateSlug($request->restaurant_name),
-      'name' => $request->name,
+    //set data to session
+    $request->session()->put('register-data', [
+      'slug'  => RestaurantUser::generateSlug($request->name),
+      'name'  => $request->name,
       'phone' => $request->phone,
       'email' => $request->email,
+
       'password' => Hash::make($request->password),
-      'code_id' => $code->id,
+      'code_id'  => $code->id,
       'is_verified' => false,
     ]);
-
-    // Get the last inserted ID
-    $lastInsertId = $restaurant_user->id;
-
-    // Create the restaurant associated with the restaurant user
-    $restaurant = Restaurant::create([
-      'restaurant_user_id' => $lastInsertId,
+    $request->session()->put('register-restaurant-data', [
       'name' => $request->restaurant_name,
       'phone' => $request->restaurant_phone,
       'address' => $request->restaurant_address,
     ]);
 
-    // Log in the newly registered user
-    Auth::guard('frontend')->login($restaurant_user);
-
     // Redirect to the profile page
-    return redirect()->route('profile', $restaurant_user->slug);
+    return redirect()->route('phone.verify.form');
   }
 
   public function logout()

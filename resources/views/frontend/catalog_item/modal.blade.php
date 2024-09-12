@@ -83,7 +83,7 @@
             </div>
 
           </a>
-
+          <small class="font-size-10 fw-medium">(Size 1200 x 720px || Max: 1mb)</small>
           @error('product')
           <p class="text-red-600 text-sm mt-1">{{ $message }} </p>
           @enderror
@@ -240,17 +240,17 @@
 
       <div class="col-md-4">
         <div class="mb-3">
-          <label for="file-input-product" class="form-label form-label required-star">Product Image <span
-              class="required-indicator">*</span></label>
+          <label for="file-input-product" class="form-label form-label required-star">Product Image <span class="required-indicator">*</span> </label>
           <div class="drop-area" id="drop-area-product">
                 <a href="{{ route("account.filemanager.files",'item_modal') }}" data-bs-toggle="modal" class="parent-of-input-and-preview-image-tag" data-bs-target="#fileManagerModal">
                   <input type="file" class="item-image-input" accept="image/*" name="product" hidden>
 
-                  <img class="item-image-preview" src="{{ $catalog_item->image ? \Storage::url($catalog_item->image ) : '' }}"
+                  <img class="item-image-preview" src="{{ $catalog_item->image ? \Storage::url("restaurant/products/thumbnails/". $catalog_item->image ) : '' }}"
                     alt="Product Preview" style="display: {{ $catalog_item->image ? 'block' : 'none' }}; max-width: 100%;">
                   <i class="ri-upload-2-line upload_icon" id="icon-product"></i>
                 </a>
           </div>
+          <small class="font-size-10 fw-medium">(Size 1200 x 720px || Max: 1mb)</small>
           @error('product')
           <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
           

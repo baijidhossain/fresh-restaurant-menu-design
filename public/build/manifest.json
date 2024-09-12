@@ -1,0 +1,29 @@
+{
+  "__commonjsHelpers-BosuxZz1.js": {
+    "file": "assets/_commonjsHelpers-BosuxZz1.js",
+    "name": "_commonjsHelpers"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-Dda6aECu.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-Dee6lE1K.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "__commonjsHelpers-BosuxZz1.js"
+    ]
+  },
+  "resources/js/qrcode-generator.js": {
+    "file": "assets/qrcode-generator-C9_DnVLJ.js",
+    "name": "qrcode-generator",
+    "src": "resources/js/qrcode-generator.js",
+    "isEntry": true,
+    "imports": [
+      "__commonjsHelpers-BosuxZz1.js"
+    ]
+  }
+}
