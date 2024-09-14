@@ -2,7 +2,7 @@
     'bodyClasses' => 'flex-auto p-6',
 ])
 
-<div {{ $attributes->merge(['class' => 'relative flex flex-col rounded-lg bg-white break-words shadow-xl']) }}>
+<div {{ $attributes->merge(['class' => 'relative flex flex-col rounded-lg bg-white break-words ']) }}>
     <div class="{{ $bodyClasses }}">
         
         @if(isset($title))

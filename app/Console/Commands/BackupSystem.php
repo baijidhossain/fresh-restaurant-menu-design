@@ -37,10 +37,10 @@ class BackupSystem extends Command
     File::makeDirectory(dirname($path), 0755, true, true);
 
     // Get database configuration
-    $host = env('DB_HOST', 'localhost');
-    $username = env('DB_USERNAME', 'root');
+    $host = env('DB_HOST', '');
+    $username = env('DB_USERNAME', '');
     $password = env('DB_PASSWORD', '');
-    $database = env('DB_DATABASE', 'gocards');
+    $database = env('DB_DATABASE', '');
 
     // Check database connection
     try {

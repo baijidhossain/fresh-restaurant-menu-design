@@ -185,7 +185,7 @@
 
                                   <div class="mb-3 banner_section">
                                     <label for="banner" class="custom-form-label form-label text-nowrap">
-                                      Banner <small class="font-size-10 fw-medium">(Size 850 x 470px || Max: 500kb)</small>
+                                      Banner <small class="font-size-10 fw-medium">(Size 850 x 470px || Max: 1mb)</small>
                                     </label>
 
                                     <div class="drop-area" id="drop-area-banner">

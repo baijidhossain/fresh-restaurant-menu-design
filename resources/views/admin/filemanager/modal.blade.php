@@ -224,7 +224,7 @@
 
           <div class="col-6 col-sm-4">
             <div class="list-group mt-3">
-              <button class="list-group-item list-group-item-action border-0 rounded-0 rounded-end-5 getItem active"
+              <button class="list-group-item list-group-item-action border-0 rounded-0 rounded-end-5  active"
                 data-catalog="all">Restaurant Background</button>
             </div>
           </div>
@@ -328,7 +328,7 @@
 
           <div class="col-5 col-sm-4">
             <div class="list-group mt-3">
-              <button class="list-group-item list-group-item-action border-0 rounded-0 rounded-end-5 getItem active"
+              <button class="list-group-item list-group-item-action border-0 rounded-0 rounded-end-5  active"
                 data-catalog="all">Restaurant Logo</button>
             </div>
           </div>
@@ -435,17 +435,18 @@
           <div class="col-5 col-sm-4">
             <div class="list-group mt-3">
               <button class="list-group-item list-group-item-action border-0 rounded-0 rounded-end-5 getItem active"
-                data-catalog="all">All</button>
+                data-directory="filemanager/products">All</button>
 
-              @forelse ($fileManagerCatalog as $item)
+              @forelse ($directories as $directory)
 
               <button class="list-group-item list-group-item-action border-0 rounded-0 rounded-end-5 getItem"
-                data-catalog="{{ $item->catalog }}">{{ ucfirst($item->catalog) }}</button>
+                data-catalog="{{ $directory }}">{{ ucfirst(basename($directory)) }}</button>
 
               @empty
               <button class="list-group-item list-group-item-action border-0 rounded-0 rounded-end-5">No Catalog
                 Found</button>
               @endforelse
+
             </div>
           </div>
 
@@ -515,25 +516,53 @@
 
     // Fetch items based on catalog
     $(document).on('click', '.getItem', async function() {
-      var catalog = $(this).data('catalog');
-      $(".getItem").removeClass("active");
-      $(this).addClass("active");
-      var url = '{{ route("account.filemanager.getitem", ":catalog") }}'.replace(':catalog',
-        encodeURIComponent(catalog));
-      try {
-        $(".theme").html(
-          `<div class="spinner-border text-danger mt-4" role="status"><span class="visually-hidden">Loading...</span></div>`
-        );
-        const response = await $.ajax({
-          url: url,
-          method: 'GET',
-          dataType: 'html'
+      var directory = $(this).data('directory');
+
+      $(document).on('click', '.getItem', async function() {
+    // Get the directory value from the data attribute
+    var directory = $(this).data('directory');
+    
+    try {
+        // Make an AJAX GET request to fetch data based on the directory
+        let response = await $.ajax({
+            url: '{{ route('your.route.name') }}', // Replace with your route URL
+            type: 'GET',
+            data: {
+                directory: directory
+            },
+            success: function(response) {
+                // Handle the successful response here
+                $(".theme").html(response);
+                // You can update the DOM or show a message based on the response
+            },
+            error: function(xhr, status, error) {
+                // Handle errors here
+                console.error('An error occurred:', error);
+            }
         });
-        $(".theme").html(response);
-      } catch (error) {
-        console.error('Error occurred: ', error);
-        $(".theme").html('<p>An error occurred while fetching the data. Please try again.</p>');
-      }
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+});
+
+
+      // $(".getItem").removeClass("active");
+      // $(this).addClass("active");
+      // var url = '{{ route("account.filemanager.getitem", ":catalog") }}'.replace(':catalog',encodeURIComponent(catalog));
+      // try {
+      //   $(".theme").html(
+      //     `<div class="spinner-border text-danger mt-4" role="status"><span class="visually-hidden">Loading...</span></div>`
+      //   );
+      //   const response = await $.ajax({
+      //     url: url,
+      //     method: 'GET',
+      //     dataType: 'html'
+      //   });
+      //   $(".theme").html(response);
+      // } catch (error) {
+      //   console.error('Error occurred: ', error);
+      //   $(".theme").html('<p>An error occurred while fetching the data. Please try again.</p>');
+      // }
     });
 
     // Handle thumbnail click

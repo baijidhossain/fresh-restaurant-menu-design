@@ -26,8 +26,15 @@ class RestaurantUserController extends Controller
 
     $restaurant_user = RestaurantUser::search($search)
       ->latest()
-      ->paginate(10)
+      ->paginate(3)
       ->withQueryString();
+
+    // Calculate serial index for restaurant user
+    $restaurant_user->getCollection()->transform(function ($item, $index) use ($restaurant_user) {
+      // Calculate serial index for paginated results
+      $item->serial_index = $index + 1 + (($restaurant_user->currentPage() - 1) * $restaurant_user->perPage());
+      return $item;
+    });
 
     return view('admin.restaurant_user.index', compact('restaurant_user', 'search'));
   }

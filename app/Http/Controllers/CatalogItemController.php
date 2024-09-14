@@ -32,7 +32,6 @@ class CatalogItemController extends Controller
     return view('frontend.catalog_item.modal', compact('action', 'modal_title', 'catalogs'));
   }
 
-
   public function store(Request $request)
   {
     try {
@@ -56,39 +55,7 @@ class CatalogItemController extends Controller
       );
 
       // Handle file upload if a new file is provided
-      if ($request->hasFile('product')) {
-
-        // Store new product image
-        $productImage = $request->file('product');
-        $newFileName = 'goCards_item_' . time() . '.' . $productImage->getClientOriginalExtension();
-
-        $manager = new ImageManager(new Driver());
-
-        // Initialize the Image Manager
-        $image = $manager->read($productImage->getRealPath());
-
-        // Resize original image to 1024x768
-        if ($image->width() > 1200 || $image->height() > 720) {
-          // Resize original image to 1024px width, keeping the aspect ratio and auto-adjusting height
-          $image->coverDown(1200, 720);
-        }
-
-        // Save the original image
-        $originalImagePath = 'restaurant/products/' . $newFileName;
-        Storage::disk('public')->put($originalImagePath, (string)$image->encode());
-
-        // Check image dimensions and compress (resize if larger than 150x150)
-        if ($image->width() > 150 || $image->height() > 150) {
-          $image->coverDown(150, 150);
-        }
-
-        // Save the compressed image (thumbnail)
-        $thumbnailPath = 'restaurant/products/thumbnails/' . $newFileName;
-        Storage::disk('public')->put($thumbnailPath, (string) $image->encode());
-
-        // Store the image filename in the validated data array
-        $validatedData['image'] = $newFileName;
-      }
+      $validatedData['image'] = $this->handleFileUpload($request, 'product', 'restaurant/products',  "");
 
       // Create a new catalog item
       CatalogItem::create([
@@ -113,7 +80,6 @@ class CatalogItemController extends Controller
     }
   }
 
-
   public function update(Request $request, $id)
   {
     // Validate request data
@@ -135,49 +101,7 @@ class CatalogItemController extends Controller
       $catalogItem = CatalogItem::findOrFail($id);
 
       // Handle file upload if a new file is provided
-      if ($request->hasFile('product')) {
-        // Delete the old image if it exists
-        if ($catalogItem->image) {
-          $oldImagePathThumb = 'restaurant/products/thumbnails/' . $catalogItem->image;
-          $oldImagePathOriginal = 'restaurant/products/' . $catalogItem->image;
-
-          // Check and delete old image files if they exist
-          if (Storage::disk('public')->exists($oldImagePathThumb)) {
-            Storage::disk('public')->delete($oldImagePathThumb);
-          }
-          if (Storage::disk('public')->exists($oldImagePathOriginal)) {
-            Storage::disk('public')->delete($oldImagePathOriginal);
-          }
-        }
-
-        // Store new product image
-        $productImage = $request->file('product');
-        $newFileName = 'goCards_item_' . time() . '.' . $productImage->getClientOriginalExtension();
-
-        $manager = new ImageManager(new Driver());
-        $image = $manager->read($productImage->getRealPath());
-
-        // Resize original image to 1024x768
-        if ($image->width() > 1200 || $image->height() > 720) {
-          $image->coverDown(1200, 720);
-        }
-
-        // Save the original image
-        $originalImagePath = 'restaurant/products/' . $newFileName;
-        Storage::disk('public')->put($originalImagePath, (string)$image->encode());
-
-        // Create and save thumbnail (150x150)
-        $thumbnail = $image->coverDown(150, 150);
-
-        $thumbnailPath = 'restaurant/products/thumbnails/' . $newFileName;
-        Storage::disk('public')->put($thumbnailPath, (string)$thumbnail->encode());
-
-        // Set new image path for saving in the database
-        $validatedData['image'] = $newFileName;
-      } else {
-        // Keep the old image if no new one is uploaded
-        $validatedData['image'] = $catalogItem->image;
-      }
+      $validatedData['image'] = $this->handleFileUpload($request, 'product', 'restaurant/products',  $catalogItem->image);
 
       // Update the catalog item with validated data
       $catalogItem->update($validatedData);
@@ -190,84 +114,6 @@ class CatalogItemController extends Controller
       return back()->with('error', 'Failed to update catalog item.');
     }
   }
-
-  // public function update(Request $request, $id)
-  // {
-  //   // Validate request data
-  //   $validatedData = $request->validate(
-  //     [
-  //       'catalog_id' => 'required|exists:catalogs,id',
-  //       'name' => 'required|string|max:100',
-  //       'description' => 'nullable|string|max:150',
-  //       'price' => 'required|numeric',
-  //       'offer_price' => 'nullable|numeric',
-  //       'popular' => 'required|boolean',
-  //       'status' => 'required|boolean',
-  //       'display_order' => 'nullable|integer',
-  //       'custom_field' => 'nullable|string|max:255',
-  //       'product' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-  //     ],
-  //   );
-
-  //   try {
-  //     // Find the catalog item by ID
-  //     $catalogItem = CatalogItem::findOrFail($id);
-
-  //     // Handle file upload if a new file is provided
-  //     if ($request->hasFile('product')) {
-
-
-  //       // Delete the old image if it exists
-  //       if ($catalogItem->image) {
-  //         $oldImagePath = 'restaurant/products/thumbnails/' . $catalogItem->image;
-  //         if (Storage::disk('public')->exists($oldImagePath)) {
-  //           Storage::disk('public')->delete($oldImagePath);
-  //         }
-  //       }
-  //       // Handle the product image upload
-  //       $productImagePath = $request->file('product');
-
-
-  //       $newPath = null;
-
-  //       if ($productImagePath) {
-
-  //         $newFileName = 'goCards_item_' . time() . ".png";
-  //         $savePath = storage_path('app/public/restaurant/products/' . $newFileName);
-
-  //         $productImagePath->save($savePath);
-  //         // Create an ImageManager instance (using the GD driver)
-  //         $manager = new ImageManager(new Driver());
-  //         // Read the image from the uploaded file
-  //         $image = $manager->read($productImagePath->getRealPath());
-  //         // Define the file name and path
-  //         $savePath = storage_path('app/public/restaurant/products/' . $newFileName);
-  //         $image->toPng()->save($savePath, 75);
-  //         // Resize the image to 150x150
-  //         $image->resize(150, 150, function ($constraint) {
-  //           $constraint->aspectRatio(); // Keep aspect ratio
-  //           $constraint->upsize();      // Prevent upscaling
-  //         });
-
-  //         $savePath = storage_path('app/public/restaurant/products/thumbnails/' . $newFileName);
-  //         $image->toPng()->save($savePath, 75);
-
-  //         $newPath = $newFileName;
-  //       }
-  //     }
-
-  //     $validatedData['image'] = $newPath ?? $catalogItem->image;
-
-  //     // Update the catalog item with validated data
-  //     $catalogItem->update($validatedData);
-
-  //     return back()->with('success', 'Catalog item updated successfully.');
-  //   } catch (\Exception $e) {
-  //     // Log and handle the exception
-  //     Log::error('Update failed: ' . $e->getMessage());
-  //     return back()->with('error', 'Failed to update catalog item.');
-  //   }
-  // }
 
   public function delete($id)
   {
@@ -316,5 +162,56 @@ class CatalogItemController extends Controller
 
     // Pass the catalog item to the view
     return view('frontend.catalog_item.modal', compact('action', 'modal_title', 'catalogs', 'catalog_item'));
+  }
+
+
+  private function handleFileUpload($request, $fileKey, $storagePath, $existingPath = "")
+  {
+    // Check if the request contains the file
+    if ($request->hasFile($fileKey)) {
+      // Delete the old image if it exists
+      if ($existingPath) {
+        $oldImagePathThumb = $storagePath . '/thumbnails/' . $existingPath;
+        $oldImagePathOriginal = $storagePath . '/' . $existingPath;
+
+        // Check and delete old image files if they exist
+        if (Storage::disk('public')->exists($oldImagePathThumb)) {
+          Storage::disk('public')->delete($oldImagePathThumb);
+        }
+        if (Storage::disk('public')->exists($oldImagePathOriginal)) {
+          Storage::disk('public')->delete($oldImagePathOriginal);
+        }
+      }
+
+      // Get the uploaded file
+      $file = $request->file($fileKey);
+      $newFileName = 'goCards_' . $fileKey . '_' . time() . '.' . $file->getClientOriginalExtension();
+
+      // Create an image manager instance and read the uploaded file
+      $manager = new ImageManager(new Driver());
+      $image = $manager->read($file->getRealPath());
+
+      // Resize the image to 1200x720 if necessary
+      // Resize original image to 1024x768
+      if ($image->width() > 1200 || $image->height() > 720) {
+        $image->coverDown(1200, 720);
+      }
+
+      // Save the original image
+      $originalImagePath = $storagePath . '/' . $newFileName;
+      Storage::disk('public')->put($originalImagePath, (string) $image->encode());
+
+      // Create and save thumbnail (150x150)
+      $thumbnail = $image->coverDown(150, 150);
+
+      $thumbnailPath = $storagePath . '/thumbnails/' . $newFileName;
+      Storage::disk('public')->put($thumbnailPath, (string) $thumbnail->encode());
+
+      // Return the new file name
+      return $newFileName;
+    }
+
+    // Return the existing file name if no new file is uploaded
+    return $existingPath;
   }
 }

@@ -8,6 +8,10 @@ use App\Models\CatalogItem;
 use App\Models\Catalog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class CatalogItemController extends Controller
 {
@@ -20,14 +24,21 @@ class CatalogItemController extends Controller
     $catalog_items = CatalogItem::join('catalogs', 'catalog_items.catalog_id', '=', 'catalogs.id')
       ->when($search, function ($query, $search) {
         return $query->where(function ($query) use ($search) {
-          $query->where('catalog_items.item_name', 'like', "%{$search}%")
+          $query->where('catalog_items.name', 'like', "%{$search}%")
             ->orWhere('catalogs.name', 'like', "%{$search}%");
         });
       })
       ->select('catalog_items.*', 'catalogs.name as catalog_name')
-      ->orderBy('catalog_items.id', 'desc') // Order by id in descending order
+      ->orderBy('catalog_items.display_order', 'asc')
+      ->orderBy('catalog_items.updated_at', 'desc') // Order by id in descending order
       ->paginate(10); // Change the number of items per page as needed
 
+    // Calculate serial index for catalog items
+    $catalog_items->getCollection()->transform(function ($item, $index) use ($catalog_items) {
+      // Calculate serial index for paginated results
+      $item->serial_index = $index + 1 + (($catalog_items->currentPage() - 1) * $catalog_items->perPage());
+      return $item;
+    });
 
     return view('admin.catalog_item.index', compact('catalog_items', 'search'));
   }
@@ -55,11 +66,8 @@ class CatalogItemController extends Controller
       ]);
 
       // Handle the product image upload
-      $productImagePath = $request->file('image')
-        ? $request->file('image')->store('restaurant/product', 'public')
-        : null;
 
-
+      $productImagePath = $this->handleFileUpload($request, 'product', 'restaurant/products');
 
       // Create a new catalog item
       CatalogItem::create([
@@ -115,6 +123,11 @@ class CatalogItemController extends Controller
 
     try {
       $catalogItem = CatalogItem::findOrFail($id);
+
+      // Handle the product image upload
+      $validatedData['image'] = $this->handleFileUpload($request, 'product', 'restaurant/products',  $catalogItem->image);
+
+
       $catalogItem->update($validatedData);
 
       return redirect()->route('catalog.item.index')->with('success', 'Catalog item updated successfully.');
@@ -140,5 +153,55 @@ class CatalogItemController extends Controller
 
       return back()->with('error', 'Failed to delete catalog item.');
     }
+  }
+
+  private function handleFileUpload($request, $fileKey, $storagePath, $existingPath = "")
+  {
+    // Check if the request contains the file
+    if ($request->hasFile($fileKey)) {
+      // Delete the old image if it exists
+      if ($existingPath) {
+        $oldImagePathThumb = $storagePath . '/thumbnails/' . $existingPath;
+        $oldImagePathOriginal = $storagePath . '/' . $existingPath;
+
+        // Check and delete old image files if they exist
+        if (Storage::disk('public')->exists($oldImagePathThumb)) {
+          Storage::disk('public')->delete($oldImagePathThumb);
+        }
+        if (Storage::disk('public')->exists($oldImagePathOriginal)) {
+          Storage::disk('public')->delete($oldImagePathOriginal);
+        }
+      }
+
+      // Get the uploaded file
+      $file = $request->file($fileKey);
+      $newFileName = 'goCards_' . $fileKey . '_' . time() . '.' . $file->getClientOriginalExtension();
+
+      // Create an image manager instance and read the uploaded file
+      $manager = new ImageManager(new Driver());
+      $image = $manager->read($file->getRealPath());
+
+      // Resize the image to 1200x720 if necessary
+      // Resize original image to 1024x768
+      if ($image->width() > 1200 || $image->height() > 720) {
+        $image->coverDown(1200, 720);
+      }
+
+      // Save the original image
+      $originalImagePath = $storagePath . '/' . $newFileName;
+      Storage::disk('public')->put($originalImagePath, (string) $image->encode());
+
+      // Create and save thumbnail (150x150)
+      $thumbnail = $image->coverDown(150, 150);
+
+      $thumbnailPath = $storagePath . '/thumbnails/' . $newFileName;
+      Storage::disk('public')->put($thumbnailPath, (string) $thumbnail->encode());
+
+      // Return the new file name
+      return $newFileName;
+    }
+
+    // Return the existing file name if no new file is uploaded
+    return $existingPath;
   }
 }

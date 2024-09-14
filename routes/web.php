@@ -29,6 +29,11 @@ use Illuminate\Support\Facades\Storage;
 
 
 
+//route for testing
+Route::get('test', function () {
+  // Upload test file to FTP
+  Storage::disk('ftp')->put('/' . 'test2.txt', 'Hello World');
+});
 
 
 Route::view('/', 'index')->name('home');
@@ -74,10 +79,10 @@ Route::prefix('/')
     Route::delete('/catalog_item/delete/{id}', [App\Http\Controllers\CatalogItemController::class, 'delete'])->name('catalog.item.delete');
 
     // File Manager
-    Route::get('/filemanager', [FileManagerController::class, 'index'])->name('filemanager.index');
-    Route::get('/filemanager/getitem/{catalog}', [FileManagerController::class, 'getitem'])->name('filemanager.getitem');
+    Route::get('/filemanager', [App\Http\Controllers\FileManagerController::class, 'index'])->name('filemanager.index');
+    Route::get('/filemanager/getitem/', [App\Http\Controllers\FileManagerController::class, 'getitem'])->name('filemanager.getitem');
 
-    Route::get('/files/{modal_type}', [FileManagerController::class, 'files'])->name('filemanager.files');
+    Route::get('/files/{modal_type}', [App\Http\Controllers\FileManagerController::class, 'files'])->name('filemanager.files');
   });
 
 //Admin Routes
@@ -135,7 +140,15 @@ Route::prefix('admin/')
 
     // Filemanager
 
-    Route::get('/filemanager', [FileManagerController::class, 'index'])->name('filemanager.index');
+    // Route::get('/filemanager/{directory?}', [FileManagerController::class, 'index'])->name('filemanager.index');
+
+    Route::get('/filemanager/{any?}', [FileManagerController::class, 'index'])->where('any', '.*')->name('filemanager.index');
+
+    Route::post('/filemanager/upload', [FileManagerController::class, 'upload'])->name('filemanager.upload');
+
+    Route::post('/filemanager/delete', [FileManagerController::class, 'delete'])->name('filemanager.delete');
+
+    Route::get('/filemanager/getitem', [FileManagerController::class, 'getItem'])->name('filemanager.getitem');
   });
 
 

@@ -24,6 +24,13 @@ class CatalogController extends Controller
       ->select('catalogs.*', 'restaurants.name as restaurant_name') // Select fields from both tables
       ->paginate(10); // Adjust the number of items per page as needed
 
+    // Calculate serial index for catalogs
+    $catalogs->getCollection()->transform(function ($item, $index) use ($catalogs) {
+      // Calculate serial index for paginated results
+      $item->serial_index = $index + 1 + (($catalogs->currentPage() - 1) * $catalogs->perPage());
+      return $item;
+    });
+
 
     return view('admin.catalog.index', compact('catalogs', 'search'));
   }

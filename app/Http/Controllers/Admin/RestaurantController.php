@@ -25,6 +25,13 @@ class RestaurantController extends Controller
         ->orWhere('address', 'like', "%{$search}%");
     })->paginate(10);
 
+    // Calculate serial index for restaurant
+    $restaurants->getCollection()->transform(function ($item, $index) use ($restaurants) {
+      // Calculate serial index for paginated results
+      $item->serial_index = $index + 1 + (($restaurants->currentPage() - 1) * $restaurants->perPage());
+      return $item;
+    });
+
     return view('admin.restaurant.index', compact('restaurants'));
   }
 
@@ -49,15 +56,11 @@ class RestaurantController extends Controller
     ]);
 
     try {
-      // Handle file uploads
-      $logoPath = $request->file('logo') ? $request->file('logo')->store('restaurant/logos', 'public') : null;
-      $bannerPath = $request->file('banner') ? $request->file('banner')->store('restaurant/banners', 'public') : null;
-
-
-
+      // Handle file uploads for logo and banner
+      $logoPath = $this->handleFileUpload($request, 'logo', 'restaurant/logos');
+      $bannerPath = $this->handleFileUpload($request, 'banner', 'restaurant/banners');
 
       // Insert new restaurant into the database
-
       DB::table('restaurants')->insert([
         'restaurant_user_id' => $request->input('restaurant_user'),
         'name' => $request->input('name'),
@@ -67,12 +70,10 @@ class RestaurantController extends Controller
         'end_time' => $request->input('end_time'),
         'logo' => $logoPath,
         'banner' => $bannerPath,
-
       ]);
 
       return redirect()->route('restaurant.index')->with('success', 'Restaurant created successfully.');
     } catch (\Exception $e) {
-
       return redirect()->back()->withErrors(['error' => 'An error occurred while creating the restaurant. Please try again.'])->withInput();
     }
   }
@@ -91,7 +92,6 @@ class RestaurantController extends Controller
     // Pass the restaurant data to the view
     return view('admin.restaurant.edit', compact('restaurant', 'restaurant_users'));
   }
-
 
   public function update(Request $request, $id)
   {
@@ -118,26 +118,12 @@ class RestaurantController extends Controller
       }
 
       // Handle file uploads
-      $logoPath = $restaurant->logo;
-      $bannerPath = $restaurant->banner;
+      $logoExistingPath = $restaurant->logo;
+      $bannerExistingPath = $restaurant->banner;
 
-      if ($request->hasFile('logo')) {
-        // Delete the existing logo file if it exists
-        if ($logoPath && Storage::disk('public')->exists($logoPath)) {
-          Storage::disk('public')->delete($logoPath);
-        }
-        // Store the new logo
-        $logoPath = $request->file('logo')->store('restaurant/logos', 'public');
-      }
-
-      if ($request->hasFile('banner')) {
-        // Delete the existing banner file if it exists
-        if ($bannerPath && Storage::disk('public')->exists($bannerPath)) {
-          Storage::disk('public')->delete($bannerPath);
-        }
-        // Store the new banner
-        $bannerPath = $request->file('banner')->store('restaurant/banners', 'public');
-      }
+      // Handle file uploads for logo and banner
+      $logoPath = $this->handleFileUpload($request, 'logo', 'restaurant/logos') ??  $logoExistingPath;
+      $bannerPath = $this->handleFileUpload($request, 'banner', 'restaurant/banners') ??  $bannerExistingPath;
 
       // Update the restaurant details
       DB::table('restaurants')->where('id', $id)->update([
@@ -161,7 +147,6 @@ class RestaurantController extends Controller
     }
   }
 
-
   public function view(Request $request, $id)
   {
 
@@ -184,21 +169,32 @@ class RestaurantController extends Controller
     // Retrieve the catalogs for the restaurant with pagination
     $catalogs = DB::table('catalogs')
       ->where('restaurant_id', $restaurant->id)
-      ->paginate(2, ['*'], 'catalog_page', $catalogPage); // Use 'catalog_page' for pagination
+      ->paginate(10, ['*'], 'catalog_page', $catalogPage); // Use 'catalog_page' for pagination
+
+    // Calculate serial index for restaurant
+    $catalogs->getCollection()->transform(function ($item, $index) use ($catalogs) {
+      // Calculate serial index for paginated results
+      $item->serial_index = $index + 1 + (($catalogs->currentPage() - 1) * $catalogs->perPage());
+      return $item;
+    });
 
     // Retrieve the catalog items for the restaurant with pagination
     $catalog_items = DB::table('catalog_items')
       ->join('catalogs', 'catalog_items.catalog_id', '=', 'catalogs.id')
       ->where('catalogs.restaurant_id', $restaurant->id)
       ->select('catalog_items.*', 'catalogs.name as catalog_name')
-      ->paginate(2, ['*'], 'item_page', $itemPage); // Use 'item_page' for pagination
+      ->paginate(10, ['*'], 'item_page', $itemPage); // Use 'item_page' for pagination
+
+    // Calculate serial index for restaurant
+    $catalog_items->getCollection()->transform(function ($item, $index) use ($catalog_items) {
+      // Calculate serial index for paginated results
+      $item->serial_index = $index + 1 + (($catalog_items->currentPage() - 1) * $catalog_items->perPage());
+      return $item;
+    });
 
     // Return the view with the restaurant, catalogs, and catalog items data
     return view('admin.restaurant.view', compact('restaurant', 'catalogs', 'catalog_items'));
   }
-
-
-
 
   public function delete($id)
   {
@@ -230,5 +226,25 @@ class RestaurantController extends Controller
 
       return redirect()->route('restaurant.index')->withErrors(['error' => 'An error occurred while deleting the restaurant. Please try again.']);
     }
+  }
+
+  private function handleFileUpload($request, $fileKey, $storagePath)
+  {
+    if ($request->hasFile($fileKey)) {
+      // Get the uploaded file and generate a new file name
+      $file = $request->file($fileKey);
+      $newFileName = 'goCards_' . $fileKey . '_' . time() . '.' . $file->getClientOriginalExtension();
+
+      // Define the upload path inside storage
+      $uploadPath = storage_path('app/public/' . $storagePath);
+
+      // Move the file to the storage path
+      $file->move($uploadPath, $newFileName);
+
+      // Return the new file path
+      return $newFileName;
+    }
+
+    return null;
   }
 }
