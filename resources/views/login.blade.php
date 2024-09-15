@@ -1,5 +1,14 @@
 
 <x-guest-layout>
+  @push('css')
+  <style>
+    .form-card{
+      min-height: 510px !important;
+    }
+  </style>
+      
+  @endpush
+
   <div class="container">
 
     <div class="row justify-content-center">
@@ -64,10 +73,7 @@
                 <button type="submit" class="btn custom-btn1">Login</button>
               </div>
 
-              <div class="text-center">
-                Don’t have an account?
-                <a class="text-dark" href="javascript:void(0)"> Sign Up </a>
-              </div>
+      
 
             </form>
 

@@ -82,7 +82,7 @@ Route::prefix('/')
     Route::get('/filemanager', [App\Http\Controllers\FileManagerController::class, 'index'])->name('filemanager.index');
     Route::get('/filemanager/getitem/', [App\Http\Controllers\FileManagerController::class, 'getitem'])->name('filemanager.getitem');
 
-    Route::get('/files/{modal_type}', [App\Http\Controllers\FileManagerController::class, 'files'])->name('filemanager.files');
+    Route::get('filemanager/modal/{modal_type}', [App\Http\Controllers\FileManagerController::class, 'modal'])->name('filemanager.files');
   });
 
 //Admin Routes
@@ -139,16 +139,18 @@ Route::prefix('admin/')
     Route::delete('/catalog_item/delete/{id}', [CatalogItemController::class, 'delete'])->name('catalog.item.delete');
 
     // Filemanager
-
-    // Route::get('/filemanager/{directory?}', [FileManagerController::class, 'index'])->name('filemanager.index');
-
-    Route::get('/filemanager/{any?}', [FileManagerController::class, 'index'])->where('any', '.*')->name('filemanager.index');
-
     Route::post('/filemanager/upload', [FileManagerController::class, 'upload'])->name('filemanager.upload');
-
-    Route::post('/filemanager/delete', [FileManagerController::class, 'delete'])->name('filemanager.delete');
-
     Route::get('/filemanager/getitem', [FileManagerController::class, 'getItem'])->name('filemanager.getitem');
+    // routes/web.php
+    Route::get('filemanager/showModalContent/{action?}/{oldFolderName?}', [FileManagerController::class, 'showModalContent'])->name('filemanager.modal.content');
+    Route::post('filemanager/createfolder', [FileManagerController::class, 'createFolder'])->name('filemanager.createfolder');
+    // Route to delete a folder
+    Route::delete('filemanager/delete-folder/{folder}', [FileManagerController::class, 'deleteFolder'])->name('filemanager.delete-folder');
+    // Route to delete a folder
+    Route::delete('filemanager/delete-file/', [FileManagerController::class, 'deleteFile'])->name('filemanager.delete-file');
+    // Route to rename a folder
+    Route::post('filemanager/rename-folder', [FileManagerController::class, 'renameFolder'])->name('filemanager.rename-folder');
+    Route::get('/filemanager/{any?}', [FileManagerController::class, 'index'])->where('any', '.*')->name('filemanager.index');
   });
 
 

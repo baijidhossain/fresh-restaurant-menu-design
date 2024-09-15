@@ -5,6 +5,7 @@
   @csrf
   <div class="modal-header">
     <h5 class="modal-title" id="exampleModalLabel">{{ $modal_title }}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 
   </div>
 
@@ -336,65 +337,6 @@
 </form>
 
 @endif
-
-{{-- <script>
-  // Image preview and drag & drop handling
-  function setupDropArea(dropAreaId, fileInputId, previewId, iconId, maxSize) {
-    var $dropArea = $('#' + dropAreaId);
-    var $fileInput = $('#' + fileInputId);
-    var $preview = $('#' + previewId);
-    var $icon = $('#' + iconId);
-
-    function handleFile(files) {
-      if (files.length > 0) {
-        var file = files[0];
-        // Calculate file size in MB
-        var fileSizeMB = (file.size / 1024 / 1024).toFixed(2); // Size in MB with two decimal points
-        var maxSizeMB = (maxSize / 1024 / 1024).toFixed(2); // Max size in MB
-        // Check file size
-        if (file.size > maxSize) {
-          AlertModal('warning', 'Warning', "File size exceeds the maximum limit of " + maxSizeMB +
-            " MB. Your file size is " + fileSizeMB + " MB.");
-          $fileInput.val(''); // Clear the file input
-          $preview.hide(); // Hide the preview if the size is exceeded
-          return;
-        }
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          $preview.attr('src', e.target.result).show();
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-    $dropArea.on('dragover', function(event) {
-      event.preventDefault();
-      $(this).addClass('dragover');
-    });
-    $dropArea.on('dragleave', function() {
-      $(this).removeClass('dragover');
-    });
-    $dropArea.on('drop', function(event) {
-      event.preventDefault();
-      $(this).removeClass('dragover');
-      var files = event.originalEvent.dataTransfer.files;
-      handleFile(files);
-      $fileInput[0].files = files; // Update the hidden file input with the dropped files
-    });
-    $fileInput.on('change', function() {
-      var files = $(this)[0].files;
-      handleFile(files);
-    });
-    // Make the icon trigger the file input click event
-    $icon.on('click', function() {
-      $fileInput.click();
-    });
-  }
-  // Initialize drop areas with size limits
-  $(document).ready(function() {
-    setupDropArea('drop-area-product', 'file-input-product', 'preview-product', 'icon-product', 1 * 1024 *
-      1024); // 1 MB for product as well
-  });
-</script> --}}
 
 <script>
   function validateForm() {

@@ -40,12 +40,15 @@ class FileManagerController extends Controller
     return view('admin.filemanager.index', compact('files', 'directory'));
   }
 
-  function files($modal_type = "")
+  function modal($modal_type = "")
   {
+
+
 
     if (empty($modal_type) || !in_array($modal_type, ["banner_modal", "logo_modal", "item_modal"])) {
       return back();
     }
+
 
     $modal_title = "File Manager";
     $fileManagerCatalog = "";
@@ -65,18 +68,16 @@ class FileManagerController extends Controller
       $allFiles = Storage::allFiles('public/filemanager/logos');
     } elseif ($modal_type === "item_modal") {
 
+
       $directories = Storage::disk('public')->directories('filemanager/products');
 
-      $files = Storage::disk('public')->allFiles('filemanager/products');
-      $allFiles = array_map(function ($file) {
-        return str_replace("/storage/", "", Storage::url($file));
-      }, $files);
+      $allFiles = Storage::disk('public')->allFiles('filemanager/products');
 
       $action = "item_modal";
 
       $modal_title = "Select Item Image";
 
-      return view('admin.filemanager.modal', compact(
+      return view('frontend.filemanager.modal', compact(
         'action',
         'modal_title',
         'allFiles',
@@ -99,50 +100,24 @@ class FileManagerController extends Controller
 
     $directory = $request->directory;
 
-    // // Build the query to get file manager records
-    // $fileManagerCatalogQuery = DB::table('filemanagers')->select('name');
+    $allFiles = Storage::disk('public')->Files($directory);
 
-    // // Apply the catalog filter if it's not "all"
-    // if ($catalog !== "all") {
-    //   $fileManagerCatalogQuery->where('catalog', $catalog);
-    // }
-
-    // // Execute the query and get the results
-    // $fileManagerCatalog = $fileManagerCatalogQuery->get();
-
-    // $catalogFiles = [];
-
-    // foreach ($fileManagerCatalog as $file) {
-    //   $filePath = "public/filemanager/products/{$file->name}";
-
-    //   if (Storage::exists($filePath)) {
-    //     $catalogFiles[] = str_replace("/storage/", Storage::url($filePath), $filePath); // Replace "/storage/" with the URL
-    //   }
-    // }
-
-    // $files = Storage::disk('public')->allFiles($directory);
-    // $allFiles = array_map(function ($file) {
-    //   return str_replace("/storage/", "", Storage::url($file));
-    // }, $files);
-
-    // return view('frontend.catalog_item.items', compact('allFiles'));
-
-    echo $directory;
+    return view('frontend.catalog_item.items', compact('allFiles'));
   }
 
-  public function upload(Request $request)
-  {
-    // Validate the file upload request
-    $request->validate([
-      'file' => 'required|file|mimes:jpeg,png,jpg|max:2048', // Adjust validation rules as needed
-      'directory' => 'required',
-    ]);
+  // public function upload(Request $request)
+  // {
+  //   // Validate the file upload request
+  //   $request->validate([
+  //     'file' => 'required|file|mimes:jpeg,png,jpg|max:2048', // Adjust validation rules as needed
+  //     'directory' => 'required',
+  //   ]);
 
-    // Handle the file upload
-    $newFileName = $this->handleFileUpload($request, 'file', 'filemanager/' . $request->directory);
+  //   // Handle the file upload
+  //   $newFileName = $this->handleFileUpload($request, 'file', 'filemanager/' . $request->directory);
 
-    return back()->with('success', 'File uploaded successfully.');
-  }
+  //   return back()->with('success', 'File uploaded successfully.');
+  // }
 
   public function delete(Request $request)
   {
@@ -155,7 +130,6 @@ class FileManagerController extends Controller
 
     return response()->json(['error' => 'File not found'], 404);
   }
-
 
   private function handleFileUpload($request, $fileKey, $storagePath)
   {

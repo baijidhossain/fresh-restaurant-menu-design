@@ -15,17 +15,22 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 class FileManagerController extends Controller
 {
-  public function index($directory = "logos")
+
+  public function index($directory = "products")
   {
-
-
-    // Get directories from the 'public' disk (storage/app/public)
-    $directories = Storage::disk('public')->directories('filemanager'); // Specify the path if needed
 
     // Set the directory type or default to "logos"
     $directory_type = $directory ?? "logos";
 
     // Get files from the specified directory within 'filemanager'
+    $directories = Storage::disk('public')->allDirectories("filemanager/" . $directory);
+
+    // Remove "/filemanager/" from the path
+    $directories = array_map(function ($dir) {
+      return str_replace("filemanager/", "", $dir);
+    }, $directories);
+
+
     $files = Storage::disk('public')->files("filemanager/" . $directory);
 
     // Return the view with directories, files, and the current directory type
@@ -93,95 +98,176 @@ class FileManagerController extends Controller
     ));
   }
 
-  public function getItem(Request $request)
-  {
-
-    $directory = $request->directory;
-
-    // // Build the query to get file manager records
-    // $fileManagerCatalogQuery = DB::table('filemanagers')->select('name');
-
-    // // Apply the catalog filter if it's not "all"
-    // if ($catalog !== "all") {
-    //   $fileManagerCatalogQuery->where('catalog', $catalog);
-    // }
-
-    // // Execute the query and get the results
-    // $fileManagerCatalog = $fileManagerCatalogQuery->get();
-
-    // $catalogFiles = [];
-
-    // foreach ($fileManagerCatalog as $file) {
-    //   $filePath = "public/filemanager/products/{$file->name}";
-
-    //   if (Storage::exists($filePath)) {
-    //     $catalogFiles[] = str_replace("/storage/", Storage::url($filePath), $filePath); // Replace "/storage/" with the URL
-    //   }
-    // }
-
-    // $files = Storage::disk('public')->allFiles($directory);
-    // $allFiles = array_map(function ($file) {
-    //   return str_replace("/storage/", "", Storage::url($file));
-    // }, $files);
-
-    // return view('frontend.catalog_item.items', compact('allFiles'));
-
-    echo $directory;
-  }
-
+  // File upload
   public function upload(Request $request)
   {
+    // Check if more than 50 files are being uploaded
+    if ($request->hasFile('images') && count($request->file('images')) > 50) {
+      return back()->with('error', 'Cannot upload more than 50 files.');
+    }
+
     // Validate the file upload request
-    $request->validate([
-      'file' => 'required|file|mimes:jpeg,png,jpg|max:2048', // Adjust validation rules as needed
-      'directory' => 'required',
+    $validated = $request->validate([
+      'images.*' => 'required|file|mimes:jpeg,png,jpg|max:500', // Adjust validation rules as needed
+      'directory' => 'required|string',
     ]);
 
-    // Handle the file upload
-    $newFileName = $this->handleFileUpload($request, 'file', 'filemanager/' . $request->directory);
+    $uploadedFiles = $request->file('images');
+    $directory = 'filemanager/' . $request->directory;
 
-    return back()->with('success', 'File uploaded successfully.');
-  }
+    $successFiles = [];
+    $errors = [];
 
-  public function delete(Request $request)
-  {
-    $file = $request->input('file');
-
-    if (Storage::disk('public')->exists($file)) {
-      Storage::disk('public')->delete($file);
-      return response()->json(['success' => 'File deleted successfully']);
-    }
-
-    return response()->json(['error' => 'File not found'], 404);
-  }
-
-
-  private function handleFileUpload($request, $fileKey, $storagePath)
-  {
-    // Check if the request contains the file
-    if ($request->hasFile($fileKey)) {
-      // Get the uploaded file
-      $file = $request->file($fileKey);
-      $newFileName = 'goCards_' . $fileKey . '_' . time() . '.' . $file->getClientOriginalExtension();
-
-      // Create an image manager instance and read the uploaded file
-      $manager = new ImageManager(new Driver());
-      $image = $manager->read($file->getRealPath());
-
-      // Resize the image if necessary
-      if ($image->width() > 1200 || $image->height() > 720) {
-        $image->coverDown(1200, 720);
+    foreach ($uploadedFiles as $index => $file) {
+      if (!$file->isValid()) {
+        $errors[$index] = 'Invalid file or file too large.';
+        continue;
       }
 
-      // Save the processed image
-      $originalImagePath = $storagePath . '/' . $newFileName;
-      Storage::disk('public')->put($originalImagePath, (string) $image->encode());
+      try {
+        $newFileName = 'goCards_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
 
-      // Return the new file name
-      return $newFileName;
+        // Process and save the image
+        $manager = new ImageManager(new Driver());
+        $image = $manager->read($file->getRealPath());
+
+        if ($image->width() > 1200 || $image->height() > 720) {
+          $image->resize(1200, 720, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+          });
+        }
+
+        $path = $directory . '/' . $newFileName;
+        Storage::disk('public')->put($path, (string) $image->encode());
+
+        // Track the successfully uploaded file
+        $successFiles[] = $path;
+      } catch (\Exception $e) {
+        Log::error('File upload error: ' . $e->getMessage());
+        $errors[$index] = 'Failed to process the image.';
+      }
     }
 
-    // Return null or some default value if no file is uploaded
-    return null;
+    if (!empty($errors)) {
+      // Remove all successfully uploaded files
+      foreach ($successFiles as $filePath) {
+        if (Storage::disk('public')->exists($filePath)) {
+          Storage::disk('public')->delete($filePath);
+        }
+      }
+
+      $errorMessages = implode(', ', array_values($errors));
+      $message = "Upload failed. The following errors occurred: $errorMessages. All uploaded files have been removed.";
+      $alertStatus = "error";
+    } else {
+      $message = 'All files uploaded successfully.';
+      $alertStatus = "success";
+    }
+
+    return back()->with($alertStatus, $message);
+  }
+
+  public function createFolder(Request $request)
+  {
+
+    // Validate the request
+    $request->validate([
+      'name' => 'required|string|max:20', // Validation rule
+    ]);
+
+    // Get the folder name from the validated input
+    $folderName = $request->input('name'); // Ensure consistency
+
+    // Define the path where the folder will be created
+    $path = "filemanager/products/" . $folderName;
+
+    // Create the folder if it doesn't already exist
+    if (Storage::disk('public')->exists($path)) {
+      return back()->with('error', 'Folder already exists');
+    }
+
+    Storage::disk('public')->makeDirectory($path);
+
+    return back()->with('success', 'New folder created successfully');
+  }
+
+  public function renameFolder(Request $request)
+  {
+    // Validate the request
+    $request->validate([
+      'old_name' => 'required|string',
+      'new_name' => 'required|string',
+    ]);
+
+    // Get the old and new folder names
+    $oldFolderName = $request->input('old_name');
+    $newFolderName = $request->input('new_name');
+
+    // Define the old and new folder paths
+    $oldPath = "filemanager/products/" . $oldFolderName;
+    $newPath = "filemanager/products/" . $newFolderName;
+
+    // Check if the old folder exists
+    if (!Storage::disk('public')->exists($oldPath)) {
+      return back()->with('error', 'Old folder does not exist');
+    }
+
+    // Check if the new folder already exists
+    if (Storage::disk('public')->exists($newPath)) {
+      return back()->with('error', 'New folder name already exists');
+    }
+
+    // Rename the folder
+    Storage::disk('public')->move($oldPath, $newPath);
+
+    return back()->with('success', 'Folder renamed successfully');
+  }
+
+  public function deleteFolder(Request $request, $folder)
+  {
+    // Define the path to the folder to be deleted
+    $path = "filemanager/products/" . $folder;
+
+    // Check if the folder exists
+    if (!Storage::disk('public')->exists($path)) {
+      return back()->with('error', 'Folder does not exist');
+    }
+
+    // Delete the folder
+    Storage::disk('public')->deleteDirectory($path);
+
+    return back()->with('success', 'Folder deleted successfully');
+  }
+
+  public function deleteFile(Request $request)
+  {
+    // Define the path to the file to be deleted
+    $path = $request->filepath;
+
+    // Check if the file exists
+    if (!Storage::disk('public')->exists($path)) {
+      return back()->with('error', 'File does not exist');
+    }
+
+    // Delete the file
+    Storage::disk('public')->delete($path);
+
+    return back()->with('success', 'File deleted successfully');
+  }
+
+  public function showModalContent($action = "", $oldFolderName = "")
+  {
+
+
+    if ($action == "rename-folder") {
+      $modal_title = "Rename Folder";
+      $action = "rename-folder";
+    } else {
+      $modal_title = "New Folder";
+      $action = "new-folder";
+    }
+
+    return view('admin.filemanager.modal', compact('modal_title', 'action', 'oldFolderName'));
   }
 }

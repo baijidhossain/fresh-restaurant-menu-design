@@ -64,19 +64,35 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-    
-    @if (session()->has('success'))
+
     <script>
-        var notyf = new Notyf({
-            dismissible: true,
-            duration: 2000
-        })
-        notyf.success('{{ session('success') }}')
+      // Initialize Notyf only once
+      var notyf = new Notyf({
+        dismissible: true,
+        duration: 2000
+      });
+    
+      // Show success message if it exists
+      @if(session()->has('success'))
+        notyf.success(@json(session('success')));
+      @endif
+    
+      // Show error message if it exists
+      @if(session()->has('error'))
+        notyf.error(@json(session('error')));
+      @endif
     </script>
 
-
-
+@if ($errors->any())
+<script>
+    // Ensure the error message is properly escaped for JavaScript
+    var errorMessage = @json($errors->first());
+    notyf.error(errorMessage);
+</script>
 @endif
+
+
+    
 
     <script>
         /* Simple Alpine Image Viewer */

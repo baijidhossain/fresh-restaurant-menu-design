@@ -155,8 +155,7 @@
 
                                   <div class="mb-3 logo_section">
 
-                                    <label for="banner" class="custom-form-label form-label text-nowrap"> Logo <small
-                                        class="font-size-10 fw-medium"> (Size 150 x 150px || Max: 500kb) </small> </label>
+                                    <label for="banner" class="custom-form-label form-label text-nowrap"> Logo  </label>
 
                                     <div class="drop-area" id="drop-area-logo" style="width: 70px !important;">
                                       <a href="{{ route("account.filemanager.files",'logo_modal') }}"
@@ -172,7 +171,7 @@
 
                                       </a>
                                     </div>
-
+                                    <small class="font-size-10 fw-medium"> (Size 150px x 150px || Max: 500kb) </small>
                                     @error('logo')
                                     <p class="text-danger mt-1">{{ $message }}</p>
                                     @enderror
@@ -185,7 +184,7 @@
 
                                   <div class="mb-3 banner_section">
                                     <label for="banner" class="custom-form-label form-label text-nowrap">
-                                      Banner <small class="font-size-10 fw-medium">(Size 850 x 470px || Max: 1mb)</small>
+                                      Banner 
                                     </label>
 
                                     <div class="drop-area" id="drop-area-banner">
@@ -202,7 +201,7 @@
                                         <i class="ri-upload-2-line upload_icon"></i>
                                       </a>
                                     </div>
-
+                                    <small class="font-size-10 fw-medium">(Size 850px x 470px || Max: 1mb)</small>
                                     @error('banner')
                                     <p class="text-danger mt-1">{{ $message }}</p>
                                     @enderror

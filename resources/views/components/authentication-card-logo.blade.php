@@ -27,4 +27,4 @@
         </g>
     </svg>
 </a> --}}
-<img src="{{ \Storage::url('gocards.svg') }}" alt="" srcset="" width="70" height="70" class="mb-2">
+<img src="{{ \Storage::url('gocards.svg') }}" alt="" srcset="" width="170"  class="mb-3">

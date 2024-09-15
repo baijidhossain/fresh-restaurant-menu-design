@@ -82,6 +82,15 @@ class AuthController extends Controller
       'phone' => 'required',
     ]);
 
+    //remove ' ' or '-' from phone
+    $request = $request->merge(['phone' => preg_replace('/\s+/', '', $request->phone)]);
+    $request = $request->merge(['phone' => preg_replace('/-/', '', $request->phone)]);
+
+    //check  phone has country code +88 using regex
+    if (!preg_match('/^\+88/', $request->phone)) {
+      $request = $request->merge(['phone' => '+88' . $request->phone]);
+    }
+
     $restaurant_user = RestaurantUser::where(['phone' => $request->phone])->first();
 
     if (!$restaurant_user) {

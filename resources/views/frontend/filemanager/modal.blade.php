@@ -150,7 +150,11 @@
   .selected-theme {
     border: 0.17rem solid #007bff !important;
 
-    padding: {{  $action=='banner_modal'? '5px 15px': '2px'  }}
+    padding: {
+        {
+        $action=='banner_modal'? '5px 15px': '2px'
+      }
+    }
 
     ;
   }
@@ -436,14 +440,14 @@
       <div class="row">
 
         <div class="col-5 col-sm-4">
-          <div class="list-group mt-3">
+          <div class="list-group mt-3 overflow-y-scroll" style="height: 500px;">
             <button class="list-group-item list-group-item-action border-0 rounded-0 rounded-end-5 getItem active"
               data-directory="filemanager/products">All</button>
 
             @forelse ($directories as $directory)
 
             <button class="list-group-item list-group-item-action border-0 rounded-0 rounded-end-5 getItem"
-              data-catalog="{{ $directory }}">{{ ucfirst(basename($directory)) }}</button>
+              data-directory="{{ $directory }}">{{ ucfirst(basename($directory)) }}</button>
 
             @empty
             <button class="list-group-item list-group-item-action border-0 rounded-0 rounded-end-5">No Catalog
@@ -453,7 +457,7 @@
           </div>
         </div>
 
-        <div class="col-7 col-sm-8">
+        <div class="col-7 col-sm-8 ">
 
           <div class="overflow-y-scroll pe-3 text-center theme mt-3" id="drop-area-banner" style="height: 500px;">
 
@@ -493,99 +497,12 @@
 
 @endif
 
-
-
-<script>
-
-  $(document).ready(function(){
-
-      // Handle thumbnail click
-      $(document).on('click', '.thumbnail', function() {
-      // Get the src attribute from the img inside the clicked .thumbnail
-      var imgSrc = $(this).find('img').attr('src');
-      if (imgSrc) {
-        // Construct the theme URL
-        var themeUrl = "{{ url('/') }}/" + imgSrc;
-        // Update the data-theme-url attribute and show the alert
-        $(".theme-insert").attr('data-theme-url', themeUrl).parents(".alert").removeClass('d-none');
-        // Remove the selected-theme class from all thumbnails
-        $('.thumbnail').removeClass("selected-theme");
-        $('.selected-alert').addClass("opacity-1");
-        // Add the selected-theme class to the clicked thumbnail
-        $(this).addClass("selected-theme");
-      } else {
-        console.error('No "src" attribute found on the clicked thumbnail.');
-      }
-    });
-
-
-        // Handle theme-insert click
-    $(".theme-insert").click(async function() {
-      var fileUrl = $(this).data('theme-url');
-      try {
-        const blob = await $.ajax({
-          url: fileUrl,
-          method: 'GET',
-          xhrFields: {
-            responseType: 'blob'
-          }
-        });
-        if (blob.type.startsWith('image/')) {
-          var fileName = generateRandomFileName(blob.type.split('/')[1]);
-          var fileObjectUrl = URL.createObjectURL(blob);
-          var file = new File([blob], fileName, {
-            type: blob.type
-          });
-          var dataTransfer = new DataTransfer();
-          dataTransfer.items.add(file);
-          updateImageInput[0].files = dataTransfer.files;
-          updateImagePreview.attr('src', fileObjectUrl).show();
-          $("#fileManagerModal").modal("hide");
-        } else {
-          $('#file-preview').html('<p>Unsupported file type.</p>');
-        }
-      } catch (error) {
-        alert('Failed to fetch file.');
-        console.error('Error occurred: ', error);
-      }
-    });
-
-
-   // Handle close insert
-   $(document).on('click', '.close-insert', function() {
-      // Reset the 'theme-url' data attribute on '.theme-insert' within the closest '.alert'
-      $(this).closest('.alert').find(".theme-insert").data('theme-url', "");
-      // Remove the 'selected-theme' class from all '.thumbnail' elements
-      $('.selected-alert').removeClass("opacity-1");
-      $('.thumbnail').removeClass('selected-theme')
-    });
-
-
-
-
-
-
-
-  })
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-{{-- 
 <script>
   $(document).ready(function() {
-    // Default values
+
     var updateImagePreview = "";
     var updateImageInput = "";
+
     // Set image preview and input based on action
     @if($action == "item_modal")
     updateImagePreview = $(".parent-of-input-and-preview-image-tag .item-image-preview");
@@ -605,62 +522,13 @@
       $("#fileManagerModal").modal("hide");
     });
 
-    // Fetch items based on catalog
-    $(document).on('click', '.getItem', async function() {
-      var directory = $(this).data('directory');
-      $(document).on('click', '.getItem', async function() {
-        // Get the directory value from the data attribute
-        var directory = $(this).data('directory');
-        try {
-          // Make an AJAX GET request to fetch data based on the directory
-          let response = await $.ajax({
-            url: '{{ route('
-            your.route.name ') }}', // Replace with your route URL
-            type: 'GET',
-            data: {
-              directory: directory
-            },
-            success: function(response) {
-              // Handle the successful response here
-              $(".theme").html(response);
-              // You can update the DOM or show a message based on the response
-            },
-            error: function(xhr, status, error) {
-              // Handle errors here
-              console.error('An error occurred:', error);
-            }
-          });
-        } catch (error) {
-          console.error('An error occurred:', error);
-        }
-      });
-      $(".getItem").removeClass("active");
-      $(this).addClass("active");
-      var url = '{{ route("account.filemanager.getitem", ":catalog") }}'.replace(':catalog',
-        encodeURIComponent(catalog));
-      try {
-        $(".theme").html(
-          `<div class="spinner-border text-danger mt-4" role="status"><span class="visually-hidden">Loading...</span></div>`
-        );
-        const response = await $.ajax({
-          url: url,
-          method: 'GET',
-          dataType: 'html'
-        });
-        $(".theme").html(response);
-      } catch (error) {
-        console.error('Error occurred: ', error);
-        $(".theme").html('<p>An error occurred while fetching the data. Please try again.</p>');
-      }
-    });
-
     // Handle thumbnail click
     $(document).on('click', '.thumbnail', function() {
       // Get the src attribute from the img inside the clicked .thumbnail
       var imgSrc = $(this).find('img').attr('src');
       if (imgSrc) {
         // Construct the theme URL
-        var themeUrl = "{{ url('/') }}/" + imgSrc;
+        var themeUrl = "{{ url('/') }}" + imgSrc;
         // Update the data-theme-url attribute and show the alert
         $(".theme-insert").attr('data-theme-url', themeUrl).parents(".alert").removeClass('d-none');
         // Remove the selected-theme class from all thumbnails
@@ -677,6 +545,7 @@
     $(".theme-insert").click(async function() {
       var fileUrl = $(this).data('theme-url');
       try {
+        // Make an AJAX GET request to fetch the file as a blob
         const blob = await $.ajax({
           url: fileUrl,
           method: 'GET',
@@ -684,21 +553,42 @@
             responseType: 'blob'
           }
         });
-        if (blob.type.startsWith('image/')) {
+
+        // Log the blob to check its contents
+        console.log("Blob received:", blob);
+
+        // Check if the blob object and its type are defined
+        if (blob && blob.type && blob.type.startsWith('image/')) {
+          // Generate a random file name based on the blob's MIME type
           var fileName = generateRandomFileName(blob.type.split('/')[1]);
+
+          // Create an object URL from the blob
           var fileObjectUrl = URL.createObjectURL(blob);
+
+          // Create a File object from the blob
           var file = new File([blob], fileName, {
             type: blob.type
           });
+
+          // Create a DataTransfer object to simulate file input change
           var dataTransfer = new DataTransfer();
           dataTransfer.items.add(file);
+
+          // Assuming `updateImageInput` is the file input element
           updateImageInput[0].files = dataTransfer.files;
+
+          // Assuming `updateImagePreview` is the image preview element
           updateImagePreview.attr('src', fileObjectUrl).show();
+
+          // Hide the file manager modal after the file is inserted
           $("#fileManagerModal").modal("hide");
         } else {
+          // Log if blob is undefined or not an image
+          console.error("Invalid blob or non-image file type:", blob);
           $('#file-preview').html('<p>Unsupported file type.</p>');
         }
       } catch (error) {
+        // Handle errors that occur during the AJAX request
         alert('Failed to fetch file.');
         console.error('Error occurred: ', error);
       }
@@ -713,20 +603,68 @@
       $('.thumbnail').removeClass('selected-theme')
     });
 
-    // Generate a random file name
-    function generateRandomFileName(extension) {
-      var timestamp = new Date().getTime();
-      return 'file_' + timestamp + '.' + extension;
-    }
+    // Fetch product items
+    $(document).on('click', '.getItem', async function() {
+      // Get the directory value from the data attribute
+      var directory = $(this).data('directory');
+      // Remove "active" class from all .getItem elements and add it to the clicked one
+      $(".getItem").removeClass("active");
+      $(this).addClass("active");
+      try {
+        // Show a loading spinner while waiting for the AJAX response
+        $(".theme").html(
+          `<div class="spinner-border text-danger mt-4" role="status"><span class="visually-hidden">Loading...</span></div>`
+        );
+        // Make an AJAX GET request to fetch data based on the directory
+        const response = await $.ajax({
+          url: '{{ route("account.filemanager.getitem") }}', // Correct route URL
+          method: 'GET',
+          dataType: 'html',
+          data: {
+            directory: directory // Pass the directory data in the request
+          },
+          success: function(response) {
+            // Replace the content of .theme with the response HTML
+            $(".theme").html(response);
+          },
+          error: function(xhr, status, error) {
+            // Log the error and show a message if something went wrong
+            console.error('Error occurred: ', error);
+            $(".theme").html('<p>An error occurred while fetching the data. Please try again.</p>');
+          }
+        });
+      } catch (error) {
+        // Handle any errors during the AJAX call
+        console.error('An error occurred:', error);
+        $(".theme").html('<p>An error occurred while fetching the data. Please try again.</p>');
+      }
+    });
+
+    // Clear button
+    $(document).on('click', '.clear-button', function() {
+      $('.modal-preview-container').find('.image-placeholder')
+        .attr('src', "{{ \storage::url('default/upload_background.png') }}")
+        .show().removeClass("active");
+      $('.modal-preview-container').find('.browse-section').removeClass('d-none');
+      $('.modal-preview-container').find('.file-input-product').val('');
+      $('.action-buttons').addClass('d-none');
+    });
+
+    // Upload tab close
+    $(document).on('click', '#upload-tab', function() {
+      $('.close-insert').click()
+    })
 
     // Handle file input change
     $(document).on('change', '.file-input-product', function() {
       handleFile(this.files[0]);
     });
+
     // Handle browse button click
     $(".browse-btn").click(function() {
       $(this).closest('.modal-preview-container').find('input[type="file"]').click();
     });
+
     // Handle drag and drop
     $(document).on('dragover', '.modal-drop-area', function(e) {
       e.preventDefault();
@@ -740,6 +678,7 @@
         handleFile(e.originalEvent.dataTransfer.files[0]);
       }
     });
+
     // Handle file selection and preview
     function handleFile(file) {
       if (!file) return;
@@ -760,18 +699,10 @@
       reader.readAsDataURL(file);
     }
 
-    // Clear button action
-    $(document).on('click', '.clear-button', function() {
-      $('.modal-preview-container').find('.image-placeholder')
-        .attr('src', "{{ \Storage::url('default/upload_background.png') }}")
-        .show().removeClass("active");
-      $('.modal-preview-container').find('.browse-section').removeClass('d-none');
-      $('.modal-preview-container').find('.file-input-product').val('');
-      $('.action-buttons').addClass('d-none');
-    });
-
-    $(document).on('click', '#upload-tab', function() {
-      $('.close-insert').click()
-    })
-  });
-</script> --}}
+    // Random name generate
+    function generateRandomFileName(extension) {
+      var timestamp = new Date().getTime();
+      return 'file_' + timestamp + '.' + extension;
+    }
+  })
+</script>
